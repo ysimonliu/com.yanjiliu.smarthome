@@ -5,11 +5,19 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.avis.client.Elvin;
+import org.avis.client.NotificationEvent;
+import org.avis.client.NotificationListener;
+import org.avis.client.Subscription;
+
 public class Sensor{
 	
+	// below is only for test data
 	public final static String FILENAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\sensors\\Temperature.txt";
-	private static String type, fileName, elvinURL;
 	public final static String ELVIN_URL = "elvin://0.0.0.0:2917";
+	// end of test data
+	private static String type, fileName, elvinURL;
+	private static Elvin elvin;
 	
 	/**
 	 * main method
@@ -27,22 +35,40 @@ public class Sensor{
 		//} else {
 		//	System.exit(1);
 		//}
-		SensorReadingProducer srp = new SensorReadingProducer(type, fileName, elvinURL);
+			
+		// start a separate thread to produce sensor readings, this process is marked as final for shutoff and changeMode use
+		final SensorReadingProducer srp = new SensorReadingProducer(type, fileName, elvinURL);
 		srp.start();
 		
-		try {
-			Thread.sleep(200000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		try {
-			srp.exitSensor();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		// subscribe to elvin instructions
+    	try{
+    		elvin = new Elvin(elvinURL);
+    		Subscription sub = elvin.subscribe("TYPE == 'sensor'"); 
+    		sub.addListener(new NotificationListener(){
+    			public void notificationReceived(NotificationEvent event){
+    				// if told to shutdown, do it
+    				if(event.notification.get("VALUE") == "shutdown") {
+    					try {
+							srp.exitSensor();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+    				}
+    				// if type is temperature, then listen for mode changing instructions
+    				else if (type == "temperature"){
+    					if(event.notification.get("VALUE") == SensorReadingProducer.PERIODIC) {
+    						srp.changeTemperatureMode("periodic");
+    					}
+    					else if (event.notification.get("VALUE") == SensorReadingProducer.NON_PERIODIC) {
+    						srp.changeTemperatureMode("nonperiodic");
+    					}
+    				}
+               }
+             });
+    		} catch (Exception e){
+    			e.printStackTrace();
+    		}
 	}
 
 }
