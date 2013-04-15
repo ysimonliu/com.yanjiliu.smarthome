@@ -32,7 +32,7 @@ public class SensorReadingProducer extends Thread {
 		this.fileName = fileName;
 		this.elvinURL = elvinURL;
 		period = 0;
-		mode = NON_PERIODIC;
+		mode = PERIODIC;
 		EXIT = false;
 		preValue = 0;
 		numValue = 0;
