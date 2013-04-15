@@ -14,7 +14,7 @@ public class ElvinConsumer{
     		sub.addListener(new NotificationListener(){
     			public void notificationReceived(NotificationEvent event){
     				//print out the notification
-    				System.out.println(event.notification.get("NAME"));
+    				System.out.println(event.notification.get("SEX"));
                }
              });
     		} catch (Exception e){
@@ -23,6 +23,6 @@ public class ElvinConsumer{
     }
 
     public static void main(String [] args){
-    	ElvinConsumer me = new ElvinConsumer(args[0]);
+    	ElvinConsumer me = new ElvinConsumer("elvin://0.0.0.0:2917");
     } 
 }

@@ -6,20 +6,9 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class Sensor{
-
-	private static FileReader fr;
-	private static BufferedReader br;
-	private static String type, filePath, elvinURL;
 	
-	/**
-	 * This class starts reading data from a given file
-	 * @param fileName
-	 * @throws FileNotFoundException 
-	 */
-	public void readData(String filePath) throws FileNotFoundException {
-		fr = new FileReader(filePath);
-		br = new BufferedReader(fr);
-	}
+	private static String type, fileName, elvinURL;
+	public final static String ELVIN_URL = "elvin://0.0.0.0:2917";
 	
 	/**
 	 * main method
@@ -28,19 +17,14 @@ public class Sensor{
 	public static void main(String[] args){
 		if (args.length == 3) {
 			type = args[0];
-			filePath = args[1];
+			fileName = args[1];
 			elvinURL = args[2];
 		} else {
 			System.exit(1);
 		}
+		SensorReadingProducer srp = new SensorReadingProducer(type, fileName, elvinURL);
+		srp.start();
 	}
 	
-	/**
-	 * This class will exit the current sensor
-	 * @throws IOException 
-	 */
-	public void exitSensor() throws IOException {
-		br.close();
-		fr.close();
-	}
+
 }

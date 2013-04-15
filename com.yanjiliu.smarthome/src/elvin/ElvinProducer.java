@@ -19,10 +19,13 @@ public class ElvinProducer{
     public void produce(){
 
     	Notification not;
+    	//Notification not2;
 
     	try{
     		not = new Notification();
-    		not.set("NAME", "test");     
+    		//not2 = new Notification();
+    		not.set("NAME", "test");
+    		not.set("SEX", "male");
     		elvin.send(not); //send the notification
     	} catch (Exception e){
     		e.printStackTrace();
@@ -31,7 +34,7 @@ public class ElvinProducer{
 
 
     public static void main(String [] args){
-    	ElvinProducer me = new ElvinProducer(args[0]);
+    	ElvinProducer me = new ElvinProducer("elvin://0.0.0.0:2917");
     	me.produce();
     }
 }
