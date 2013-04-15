@@ -10,11 +10,12 @@ public class ElvinConsumer{
 
     	try{
     		elvin = new Elvin(url);
-    		Subscription sub = elvin.subscribe("NAME == 'test'"); 
+    		System.out.println("Connected");
+    		Subscription sub = elvin.subscribe("TYPE == 'temperature'"); 
     		sub.addListener(new NotificationListener(){
     			public void notificationReceived(NotificationEvent event){
     				//print out the notification
-    				System.out.println(event.notification.get("SEX"));
+    				System.out.println(event.notification.get("VALUE"));
                }
              });
     		} catch (Exception e){

@@ -63,7 +63,7 @@ public class SensorReadingProducer extends Thread {
 			
 			// reads the next line. If reached the end of file, start over on the same file
 			try {
-				if((lineContent = br.readLine()) == null ) {
+				if((lineContent = br.readLine()) == null) {
 					fr.close();
 					fr = new FileReader(fileName);
 					lineContent = br.readLine();
