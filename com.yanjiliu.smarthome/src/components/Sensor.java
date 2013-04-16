@@ -1,4 +1,4 @@
-package sensors;
+package components;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -21,7 +21,7 @@ public class Sensor{
 	
 	/**
 	 * main method
-	 * @author simonliu
+	 * @author Yanji Liu
 	 */
 	public static void main(String[] args){
 		//if (args.length == 3) {
@@ -50,6 +50,9 @@ public class Sensor{
     				if(event.notification.get("VALUE") == "shutdown") {
     					try {
 							srp.exitSensor();
+							// close elvin and current program
+							elvin.close();
+							System.exit(0);
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

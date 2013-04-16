@@ -1,4 +1,4 @@
-package sensors;
+package components;
 
 import org.avis.client.*;
 import org.avis.common.InvalidURIException;
@@ -157,6 +157,5 @@ public class SensorReadingProducer extends Thread {
 		fr.close();
 		Thread.currentThread().interrupt();
 	}
-
 
 }
