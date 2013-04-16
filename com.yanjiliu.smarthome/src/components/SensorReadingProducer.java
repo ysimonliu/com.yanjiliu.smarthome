@@ -3,6 +3,8 @@ package components;
 import org.avis.client.*;
 import org.avis.common.InvalidURIException;
 
+import PseudoRPC.Message;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;

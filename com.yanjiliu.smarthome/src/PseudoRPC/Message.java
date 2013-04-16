@@ -1,4 +1,4 @@
-package components;
+package PseudoRPC;
 
 import java.io.IOException;
 
@@ -27,7 +27,10 @@ public class Message {
 	public static final String NON_PERIODIC = "nonperiodic";
 	
 	// EMM specific instructions
-	
+	public static final String GET_TITLE = "getTitle";
+	public static final String GET_DISC = "getDisc";
+	public static final String GET_TRACKS = "getTracks";
+	public static final String GET_FILES = "getFiles";
 	
 	public final static String DEFAULT_ELVIN_URL = "elvin://0.0.0.0:2917";
 	private Notification notification;
@@ -39,7 +42,6 @@ public class Message {
 		try {
 			elvin = new Elvin(DEFAULT_ELVIN_URL);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -50,7 +52,6 @@ public class Message {
 		try {
 			elvin = new Elvin(elvinURL);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

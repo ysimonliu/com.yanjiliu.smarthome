@@ -92,6 +92,15 @@ public class MusicFileList {
 	}
 	
 	/**
+	 * Given the disc name, return a list of titles in the order of track number
+	 * @param fileName
+	 * @return
+	 */
+	public String getTracksinString(String disc){
+		return Arrays.toString(getTracks(disc));
+	}
+	
+	/**
 	 * Get a list of file names stored alphabetically
 	 * @return
 	 */
@@ -116,5 +125,13 @@ public class MusicFileList {
 		Arrays.sort(fileNames);
 		
 		return fileNames;
+	}
+	
+	/**
+	 * Get a list of file names stored alphabetically in String
+	 * @return
+	 */
+	public String getFilesinString() {
+		return Arrays.toString(getFiles());
 	}
 }

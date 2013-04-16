@@ -6,6 +6,8 @@ import org.avis.client.NotificationEvent;
 import org.avis.client.NotificationListener;
 import org.avis.client.Subscription;
 
+import PseudoRPC.Message;
+
 public class Sensor{
 	
 	// below is only for test data

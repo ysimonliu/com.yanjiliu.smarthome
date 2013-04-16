@@ -5,6 +5,8 @@ import java.io.FileReader;
 
 import org.avis.client.*;
 
+import PseudoRPC.Message;
+
 public class EMM {
 
 	private static FileReader fr;
@@ -21,50 +23,43 @@ public class EMM {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		if (args.length == 2) {
+			dataFileName = args[0];
+			elvinURL = args[1];
+		} else {
+			System.exit(1);
+		}
 	
-	if (args.length == 2) {
-		dataFileName = args[0];
-		elvinURL = args[1];
-	} else {
-		System.exit(1);
+		// read file into data structure
+		try {
+			readFile(dataFileName);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
-	// read file into data structure
-	try {
-		readFile(dataFileName);
-	} catch (Exception e1) {
-		e1.printStackTrace();
+	public void notificationReceived(NotificationEvent event){
+		// read the instruction
+		instruction = event.notification.getString(Message.INSTRUCTION);
+		from = event.notification.getString(Message.FROM);
+		// and respond with the result
+		if(instruction == Message.GET_TITLE) {
+				sendNotification(from, instruction, 
+						(temp = event.notification.getString(Message.VALUE)), mfl.getTitle(temp));
+		}
+		else if (instruction == Message.GET_DISC) {
+				sendNotification(from, instruction, 
+						(temp = event.notification.getString(Message.VALUE)), mfl.getDisc(temp));
+		}
+		else if (instruction == Message.GET_TRACKS) {
+				sendNotification(from, instruction, 
+						(temp = event.notification.getString(Message.VALUE)), mfl.getTracksinString(temp));
+		}
+		else if (instruction == Message.GET_FILES) {
+				sendNotification(from, instruction, 
+						event.notification.getString(Message.VALUE), mfl.getFilesinString());
+		}
 	}
-	
-	// subscribe to elvin instructions
-	try{
-		elvin = new Elvin(elvinURL);
-		Subscription sub = elvin.subscribe(Message.TO + " == " + Message.EMM_NAME); 
-		sub.addListener(new NotificationListener(){
-			// upon notification received, execute the following actions
-			public void notificationReceived(NotificationEvent event){
-				
-				// read the instruction
-				instruction = event.notification.getString(Message.INSTRUCTION);
-				from = event.notification.getString(Message.FROM);
-				// and respond with the result
-				if(instruction == "getTitle") {
-					sendNotification(from, instruction, 
-							(temp = event.notification.getString(Message.VALUE)), mfl.getTitle(temp));
-				}
-				else if (instruction == "getDisc") {
-					sendNotification(from, instruction, 
-							(temp = event.notification.getString(Message.VALUE)), mfl.getDisc(temp));
-				}
-				else if (instruction == "getTracks") {
-					sendNotification(from, instruction, 
-							(temp = event.notification.getString(Message.VALUE)), mfl.getTracks(temp));
-				}
-				else if (instruction == "getFiles") {
-					sendNotification(from, instruction, 
-							(temp = event.notification.getString(Message.VALUE)), mfl.getTitle(temp));
-				}
-           }
 
 			// this method sends out response notifications
 			private void sendNotification(String to, String instruction, String value, String title) {
@@ -76,11 +71,7 @@ public class EMM {
 				message.setResponse(title);
 				message.sendNotification();
 			}
-         });
-		} catch (Exception e){
-			e.printStackTrace();
-		}
-	}
+
 	
 	/**
 	 * This method reads the predefined data file for the EMM. format is assumed correct with no violation
