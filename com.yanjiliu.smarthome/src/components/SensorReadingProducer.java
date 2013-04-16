@@ -20,6 +20,8 @@ public class SensorReadingProducer extends Thread {
 	private Notification notification;
 	private static volatile boolean EXIT;
 	public static final String PERIODIC = "periodic", NON_PERIODIC = "nonperiodic";
+	public static final int MIN_TEMP = 15, MAX_TEMP = 28;
+	private static Message message;
 
 	/**
 	 * Constructor
@@ -42,18 +44,7 @@ public class SensorReadingProducer extends Thread {
 	 * run method for this thread
 	 */
 	public void run(){
-		// connect to elvin server
-		try {
-			elvin = new Elvin(elvinURL);
-		} catch (ConnectException e1) {
-			e1.printStackTrace();
-		} catch (InvalidURIException e1) {
-			e1.printStackTrace();
-		} catch (IllegalArgumentException e1) {
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+		message = new Message(elvinURL);
 		
 		// read data from given file
 		try {
@@ -112,28 +103,24 @@ public class SensorReadingProducer extends Thread {
 	 */
 	private void sendNonPeriodicTempNot(String type, String value) {
 		numValue = Integer.parseInt(value);
-		if ((numValue < 15 || numValue > 28) && (numValue != preValue)) {
+		if ((numValue < MIN_TEMP || numValue > MAX_TEMP) && (numValue != preValue)) {
 			sendNotification(type, value);
 		}
 		preValue = numValue;
 	}
 
 	/**
-	 * This method sends a type and value tuple onto Elvin
+	 * This method sends the value notification to home manager
 	 * @param type
 	 * @param value
 	 */
 	private void sendNotification(String type, String value) {
-		// TODO: switch mode for temperature
-		try {
-			notification = new Notification();
-			notification.set("TYPE", type);
-			notification.set("VALUE", value);
-			elvin.send(notification);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		message.clear();
+		message.setFrom(Message.SENSOR_NAME);
+		message.setTo(Message.HOME_MANAGER_NAME);
+		message.setInstruction(type);
+		message.setValue(value);
+		message.sendNotification();
 	}
 	
 	/**
