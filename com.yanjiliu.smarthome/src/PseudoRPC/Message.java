@@ -9,7 +9,8 @@ public class Message {
 	// key in notifications
 	public final static String TO = "TO";
 	public final static String FROM = "FROM";
-	public final static String INSTRUCTION = "INSTRUCTION";
+	public final static String QUERY = "QUERY";
+	public final static String USER = "USER";
 	public final static String VALUE = "VALUE";
 	public final static String RESPONSE = "RESPONSE";
 	
@@ -67,7 +68,7 @@ public class Message {
 	}
 	
 	public String getInstruction() {
-		return this.notification.getString(INSTRUCTION);
+		return this.notification.getString(QUERY);
 	}
 	
 	public String getValue() {
@@ -87,7 +88,7 @@ public class Message {
 	}
 	
 	public void setInstruction(String instruction) {
-		this.notification.set(INSTRUCTION, instruction);
+		this.notification.set(QUERY, instruction);
 	}
 	
 	public void setValue(String value) {

@@ -44,11 +44,11 @@ public class Sensor{
 		// subscribe to elvin instructions
     	try{
     		elvin = new Elvin(elvinURL);
-    		Subscription sub = elvin.subscribe(Message.INSTRUCTION + " == " + type);
+    		Subscription sub = elvin.subscribe(Message.QUERY + " == " + type);
     		sub.addListener(new NotificationListener(){
     			public void notificationReceived(NotificationEvent event){
     				// if told to shutdown, do it
-    				if(event.notification.get(Message.INSTRUCTION) == Message.SHUTDOWN) {
+    				if(event.notification.get(Message.QUERY) == Message.SHUTDOWN) {
     					try {
 							srp.exitSensor();
 							// close elvin and current program
@@ -60,10 +60,10 @@ public class Sensor{
     				}
     				// if type is temperature, then listen for mode changing instructions
     				else if (type == TYPE_TEMPERATURE){
-    					if(event.notification.get(Message.INSTRUCTION) == Message.PERIODIC) {
+    					if(event.notification.get(Message.QUERY) == Message.PERIODIC) {
     						srp.changeTemperatureMode(Message.PERIODIC);
     					}
-    					else if (event.notification.get(Message.INSTRUCTION) == Message.NON_PERIODIC) {
+    					else if (event.notification.get(Message.QUERY) == Message.NON_PERIODIC) {
     						srp.changeTemperatureMode(Message.NON_PERIODIC);
     					}
     				}
