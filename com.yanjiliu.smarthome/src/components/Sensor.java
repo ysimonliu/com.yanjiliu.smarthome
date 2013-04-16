@@ -1,10 +1,6 @@
 package components;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-
 import org.avis.client.Elvin;
 import org.avis.client.NotificationEvent;
 import org.avis.client.NotificationListener;
@@ -14,10 +10,13 @@ public class Sensor{
 	
 	// below is only for test data
 	public final static String FILENAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\sensors\\Temperature.txt";
-	public final static String ELVIN_URL = "elvin://0.0.0.0:2917";
 	// end of test data
 	private static String type, fileName, elvinURL;
 	private static Elvin elvin;
+	// different sensor types
+	public final static String TYPE_TEMPERATURE = "temperature";
+	public final static String TYPE_LOCATION = "location";
+	public final static String TYPE_ENERGY = "energy";
 	
 	/**
 	 * main method
@@ -29,9 +28,9 @@ public class Sensor{
 			//type = args[0];
 			//fileName = args[1];
 			//elvinURL = args[2];
-			type = "temperature";
+			type = TYPE_TEMPERATURE;
 			fileName = FILENAME;
-			elvinURL = ELVIN_URL;
+			elvinURL = Message.DEFAULT_ELVIN_URL;
 		//} else {
 		//	System.exit(1);
 		//}
@@ -43,28 +42,27 @@ public class Sensor{
 		// subscribe to elvin instructions
     	try{
     		elvin = new Elvin(elvinURL);
-    		Subscription sub = elvin.subscribe("TYPE == " + type); 
+    		Subscription sub = elvin.subscribe(Message.INSTRUCTION + " == " + type);
     		sub.addListener(new NotificationListener(){
     			public void notificationReceived(NotificationEvent event){
     				// if told to shutdown, do it
-    				if(event.notification.get("VALUE") == "shutdown") {
+    				if(event.notification.get(Message.INSTRUCTION) == Message.SHUTDOWN) {
     					try {
 							srp.exitSensor();
 							// close elvin and current program
 							elvin.close();
 							System.exit(0);
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
     				}
     				// if type is temperature, then listen for mode changing instructions
-    				else if (type == "temperature"){
-    					if(event.notification.get("VALUE") == SensorReadingProducer.PERIODIC) {
-    						srp.changeTemperatureMode("periodic");
+    				else if (type == TYPE_TEMPERATURE){
+    					if(event.notification.get(Message.INSTRUCTION) == Message.PERIODIC) {
+    						srp.changeTemperatureMode(Message.PERIODIC);
     					}
-    					else if (event.notification.get("VALUE") == SensorReadingProducer.NON_PERIODIC) {
-    						srp.changeTemperatureMode("nonperiodic");
+    					else if (event.notification.get(Message.INSTRUCTION) == Message.NON_PERIODIC) {
+    						srp.changeTemperatureMode(Message.NON_PERIODIC);
     					}
     				}
                }

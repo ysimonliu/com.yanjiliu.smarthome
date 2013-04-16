@@ -19,7 +19,7 @@ public class SensorReadingProducer extends Thread {
 	private Elvin elvin;
 	private Notification notification;
 	private static volatile boolean EXIT;
-	public static final String PERIODIC = "periodic", NON_PERIODIC = "nonperiodic";
+	
 	public static final int MIN_TEMP = 15, MAX_TEMP = 28;
 	private static Message message;
 
@@ -34,7 +34,7 @@ public class SensorReadingProducer extends Thread {
 		this.fileName = fileName;
 		this.elvinURL = elvinURL;
 		period = 0;
-		mode = PERIODIC;
+		mode = Message.PERIODIC;
 		EXIT = false;
 		preValue = 0;
 		numValue = 0;
@@ -77,7 +77,7 @@ public class SensorReadingProducer extends Thread {
 			// for the given period of time, keep sending notification to Elvin with the same value
 			while (period > 0 && !EXIT){
 				// depends on the type, put notifications on Elvin
-				if (type == "temperature" && mode == NON_PERIODIC) {
+				if (type == "temperature" && mode == Message.NON_PERIODIC) {
 					sendNonPeriodicTempNot(type, value);
 				} else {
 					sendNotification(type, value);

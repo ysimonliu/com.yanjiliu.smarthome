@@ -12,9 +12,9 @@ public class EMM {
 	private static Elvin elvin;
 	private static String dataFileName, elvinURL;
 	private static MusicFileList mfl;
-	private static String lineContent, fileName, title, disc, track;
-	private static String elvinInstruction;
+	private static String lineContent, fileName, title, disc, track, from, instruction, temp;
 	private static String[] values;
+	private static Message message = new Message();
 	
 	/**
 	 * main method, takes two argument, [fileName] and [elvinURL]
@@ -44,33 +44,37 @@ public class EMM {
 			// upon notification received, execute the following actions
 			public void notificationReceived(NotificationEvent event){
 				
-				// initialize the fileName, disc, title, track for the use of following actions
-				fileName = disc = title = track = "";
-				
 				// read the instruction
-				elvinInstruction = event.notification.getString(Message.INSTRUCTION);
-				
-				if(elvinInstruction == "getTitle") {
-					sendNotification(elvin, event.notification.getString("FROM"), elvinInstruction, (fileName = event.notification.getString("FILENAME")), mfl.getTitle(fileName));
+				instruction = event.notification.getString(Message.INSTRUCTION);
+				from = event.notification.getString(Message.FROM);
+				// and respond with the result
+				if(instruction == "getTitle") {
+					sendNotification(from, instruction, 
+							(temp = event.notification.getString(Message.VALUE)), mfl.getTitle(temp));
 				}
-				else if (elvinInstruction == "getDisc") {
-					
+				else if (instruction == "getDisc") {
+					sendNotification(from, instruction, 
+							(temp = event.notification.getString(Message.VALUE)), mfl.getDisc(temp));
 				}
-				else if (elvinInstruction == "getTracks") {
-					
+				else if (instruction == "getTracks") {
+					sendNotification(from, instruction, 
+							(temp = event.notification.getString(Message.VALUE)), mfl.getTracks(temp));
 				}
-				else if (elvinInstruction == "getFiles") {
-					
+				else if (instruction == "getFiles") {
+					sendNotification(from, instruction, 
+							(temp = event.notification.getString(Message.VALUE)), mfl.getTitle(temp));
 				}
            }
 
 			// this method sends out response notifications
-			private void sendNotification(Elvin elvin, String Destination,
-					String elvinInstruction, String string2, String title) {
-				Notification notification = new Notification();
-				notification.set("DESTINATION", Destination);
-				notification.set("FROM", Message.EMM_NAME);
-				notification.set("INSTRUCTION", "a");
+			private void sendNotification(String to, String instruction, String value, String title) {
+				message.clear();
+				message.setFrom(Message.EMM_NAME);
+				message.setTo(to);
+				message.setInstruction(instruction);
+				message.setValue(value);
+				message.setResponse(title);
+				message.sendNotification();
 			}
          });
 		} catch (Exception e){
@@ -83,11 +87,12 @@ public class EMM {
 	 * @param fileName
 	 * @throws Exception
 	 */
-	private static void readFile(String fileName) throws Exception {
+	private static void readFile(String dataFileName) throws Exception {
 		mfl = new MusicFileList();
-		fr = new FileReader(fileName);
+		fr = new FileReader(dataFileName);
 		br = new BufferedReader(fr);
 		while((lineContent = br.readLine()) != null) {
+			// if empty line, skip to read the next line
 			if (lineContent == ""){
 				lineContent = br.readLine();
 			}
@@ -107,7 +112,7 @@ public class EMM {
 			disc = values[1];
 			lineContent = br.readLine();
 			
-			// third line is disc
+			// fourth line is track
 			values = lineContent.split(":");
 			track = values[1];
 			lineContent = br.readLine();

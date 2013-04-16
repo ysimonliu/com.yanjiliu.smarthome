@@ -19,6 +19,16 @@ public class Message {
 	public static final String SMART_UI_NAME = "smartUI";
 	public static final String HOME_MANAGER_NAME = "homeManager";
 	
+	// general instructions
+	public final static String SHUTDOWN = "shutdown";
+	
+	// sensor specific instructions
+	public static final String PERIODIC = "periodic";
+	public static final String NON_PERIODIC = "nonperiodic";
+	
+	// EMM specific instructions
+	
+	
 	public final static String DEFAULT_ELVIN_URL = "elvin://0.0.0.0:2917";
 	private Notification notification;
 	private Elvin elvin;
