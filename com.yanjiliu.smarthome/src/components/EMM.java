@@ -18,6 +18,46 @@ public class EMM {
 	private static String[] values;
 	private static Message message = new Message();
 	
+	private static NotificationListener emmlistener = new NotificationListener(){
+		// upon notification received, execute the following actions
+		public void notificationReceived(NotificationEvent event){
+			
+			// read the instruction
+			instruction = event.notification.getString(Message.QUERY);
+			from = event.notification.getString(Message.FROM);
+			
+			// and respond with the result
+			if(instruction == Message.GET_TITLE) {
+				sendNotification(from, instruction, 
+						(temp = event.notification.getString(Message.VALUE)), mfl.getTitle(temp));
+			}
+			else if (instruction == Message.GET_DISC) {
+				sendNotification(from, instruction, 
+						(temp = event.notification.getString(Message.VALUE)), mfl.getDisc(temp));
+			}
+			else if (instruction == Message.GET_TRACKS) {
+				sendNotification(from, instruction, 
+						(temp = event.notification.getString(Message.VALUE)), mfl.getTracksinString(temp));
+			}
+			else if (instruction == Message.GET_FILES) {
+				sendNotification(from, instruction, 
+						event.notification.getString(Message.VALUE), mfl.getFilesinString());
+			}
+		
+		}
+
+		// this method sends out response notifications
+		private void sendNotification(String to, String instruction, String value, String title) {
+			message.clear();
+			message.setFrom(Message.EMM_NAME);
+			message.setTo(to);
+			message.setQuery(instruction);
+			message.setValue(value);
+			message.setResponse(title);
+			message.sendNotification();
+		}
+	};
+
 	/**
 	 * main method, takes two argument, [fileName] and [elvinURL]
 	 * @param args
@@ -37,51 +77,15 @@ public class EMM {
 			e.printStackTrace();
 		}
 	
-	// subscribe to elvin instructions
+		// subscribe to elvin instructions
 		try{
 			elvin = new Elvin(elvinURL);
 			Subscription sub = elvin.subscribe(Message.TO + " == " + Message.EMM_NAME); 
-			sub.addListener(new NotificationListener(){
-				// upon notification received, execute the following actions
-				public void notificationReceived(NotificationEvent event){
-					// read the instruction
-					instruction = event.notification.getString(Message.QUERY);
-					from = event.notification.getString(Message.FROM);
-					// and respond with the result
-					if(instruction == Message.GET_TITLE) {
-						sendNotification(from, instruction, 
-								(temp = event.notification.getString(Message.VALUE)), mfl.getTitle(temp));
-					}
-					else if (instruction == Message.GET_DISC) {
-						sendNotification(from, instruction, 
-								(temp = event.notification.getString(Message.VALUE)), mfl.getDisc(temp));
-					}
-					else if (instruction == Message.GET_TRACKS) {
-						sendNotification(from, instruction, 
-								(temp = event.notification.getString(Message.VALUE)), mfl.getTracksinString(temp));
-					}
-					else if (instruction == Message.GET_FILES) {
-						sendNotification(from, instruction, 
-								event.notification.getString(Message.VALUE), mfl.getFilesinString());
-					}
-				}
-
-				// this method sends out response notifications
-				private void sendNotification(String to, String instruction, String value, String title) {
-					message.clear();
-					message.setFrom(Message.EMM_NAME);
-					message.setTo(to);
-					message.setInstruction(instruction);
-					message.setValue(value);
-					message.setResponse(title);
-					message.sendNotification();
-				}
-			});
+			sub.addListener(emmlistener);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
 	
 	/**
 	 * This method reads the predefined data file for the EMM. format is assumed correct with no violation

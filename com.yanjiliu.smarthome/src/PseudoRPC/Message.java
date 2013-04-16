@@ -33,6 +33,9 @@ public class Message {
 	public static final String GET_TRACKS = "getTracks";
 	public static final String GET_FILES = "getFiles";
 	
+	// UI specific instructions
+	public static final String WARN = "warn";
+	
 	public final static String DEFAULT_ELVIN_URL = "elvin://0.0.0.0:2917";
 	private Notification notification;
 	private Elvin elvin;
@@ -67,7 +70,7 @@ public class Message {
 		return this.notification.getString(FROM);
 	}
 	
-	public String getInstruction() {
+	public String getQuery() {
 		return this.notification.getString(QUERY);
 	}
 	
@@ -87,8 +90,8 @@ public class Message {
 		this.notification.set(FROM, from);
 	}
 	
-	public void setInstruction(String instruction) {
-		this.notification.set(QUERY, instruction);
+	public void setQuery(String query) {
+		this.notification.set(QUERY, query);
 	}
 	
 	public void setValue(String value) {
@@ -100,7 +103,7 @@ public class Message {
 	}
 	
 	public boolean isComplete() {
-		return this.getFrom() != null && this.getTo() != null && (this.getInstruction() != null || this.getValue() != null);
+		return this.getFrom() != null && this.getTo() != null && (this.getQuery() != null || this.getValue() != null);
 	}
 	
 	public Notification getNotification() {

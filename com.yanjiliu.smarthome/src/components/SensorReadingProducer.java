@@ -120,7 +120,7 @@ public class SensorReadingProducer extends Thread {
 		message.clear();
 		message.setFrom(Message.SENSOR_NAME);
 		message.setTo(Message.HOME_MANAGER_NAME);
-		message.setInstruction(type);
+		message.setQuery(type);
 		message.setValue(value);
 		message.sendNotification();
 	}
