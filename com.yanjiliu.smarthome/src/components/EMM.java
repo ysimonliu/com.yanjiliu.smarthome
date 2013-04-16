@@ -15,15 +15,25 @@ public class EMM {
 	private static FileReader fr;
 	private static BufferedReader br;
 	private static Elvin elvin;
-	private static String fileName, elvinURL;
+	private static String dataFileName, elvinURL;
+	private static MusicFileList mfl;
+	private static String lineContent, fileName, title, disc, track;
+	private static String[] values;
 	
 	public static void main(String[] args) {
-		
+	
 	if (args.length == 2) {
-		fileName = args[0];
+		dataFileName = args[0];
 		elvinURL = args[1];
 	} else {
 		System.exit(1);
+	}
+	
+	// read file into data structure
+	try {
+		readFile(dataFileName);
+	} catch (Exception e1) {
+		e1.printStackTrace();
 	}
 	
 	// subscribe to elvin instructions
@@ -43,8 +53,32 @@ public class EMM {
 		}
 	}
 	
-	private void readFile(String fileName) throws FileNotFoundException {
+	private static void readFile(String fileName) throws Exception {
+		mfl = new MusicFileList();
 		fr = new FileReader(fileName);
 		br = new BufferedReader(fr);
+		while((lineContent = br.readLine()) != null) {
+			if (lineContent == ""){
+				lineContent = br.readLine();
+			}
+			// first line is fileName
+			values = lineContent.split(":");
+			fileName = values[1];
+			lineContent = br.readLine();
+			// second line is title
+			values = lineContent.split(":");
+			title = values[1];
+			lineContent = br.readLine();
+			// third line is disc
+			values = lineContent.split(":");
+			disc = values[1];
+			lineContent = br.readLine();
+			// third line is disc
+			values = lineContent.split(":");
+			track = values[1];
+			lineContent = br.readLine();
+			// add this record to music file list
+			mfl.addFile(fileName, title, disc, track);
+		}
 	}
 }

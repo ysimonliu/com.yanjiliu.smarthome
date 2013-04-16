@@ -27,6 +27,18 @@ public class MusicFileList {
 	public void addFile(String fileName, String title, String disc, int track) {
 		musicFileList.add(new MusicFile(fileName, title, disc, track));
 	}
+	
+	/**
+	 * This method adds an instance of MusicFile to the list. duplicates is allowed. Here track is String not int
+	 * @param fileName
+	 * @param title
+	 * @param disc
+	 * @param track
+	 */
+	public void addFile(String fileName, String title, String disc, String track) {
+		musicFileList.add(new MusicFile(fileName, title, disc, track));
+	}
+	
 	/**
 	 * Return the title given the fileName of a music file in the list
 	 * @param fileName

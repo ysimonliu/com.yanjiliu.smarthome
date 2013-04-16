@@ -6,7 +6,7 @@ public class MusicFile {
 	private int track;
 	
 	/**
-	 * Constructor
+	 * Constructor with track being integer
 	 * @param fileName
 	 */
 	public MusicFile(String fileName, String title, String disc, int track) {
@@ -14,6 +14,17 @@ public class MusicFile {
 		this.title = title;
 		this.disc = disc;
 		this.track = track;
+	}
+	
+	/**
+	 * Constructor with track being String
+	 * @param fileName
+	 */
+	public MusicFile(String fileName, String title, String disc, String track) {
+		this.fileName = fileName;
+		this.title = title;
+		this.disc = disc;
+		this.track = Integer.parseInt(track);
 	}
 	
 	public void setTitle(String title) {

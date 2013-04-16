@@ -43,7 +43,7 @@ public class Sensor{
 		// subscribe to elvin instructions
     	try{
     		elvin = new Elvin(elvinURL);
-    		Subscription sub = elvin.subscribe("TYPE == 'sensor'"); 
+    		Subscription sub = elvin.subscribe("TYPE == " + type); 
     		sub.addListener(new NotificationListener(){
     			public void notificationReceived(NotificationEvent event){
     				// if told to shutdown, do it
