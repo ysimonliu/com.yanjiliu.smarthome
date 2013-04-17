@@ -15,10 +15,6 @@ public class Sensor{
 	// end of test data
 	private static String type, fileName, elvinURL;
 	private static Elvin elvin;
-	// different sensor types
-	public final static String TYPE_TEMPERATURE = "temperature";
-	public final static String TYPE_LOCATION = "location";
-	public final static String TYPE_ENERGY = "energy";
 	
 	/**
 	 * main method
@@ -30,7 +26,7 @@ public class Sensor{
 			//type = args[0];
 			//fileName = args[1];
 			//elvinURL = args[2];
-			type = TYPE_TEMPERATURE;
+			type = Message.TYPE_TEMPERATURE;
 			fileName = FILENAME;
 			elvinURL = Message.DEFAULT_ELVIN_URL;
 		//} else {
@@ -59,7 +55,7 @@ public class Sensor{
 						}
     				}
     				// if type is temperature, then listen for mode changing instructions
-    				else if (type == TYPE_TEMPERATURE){
+    				else if (type == Message.TYPE_TEMPERATURE){
     					if(event.notification.get(Message.QUERY) == Message.PERIODIC) {
     						srp.changeTemperatureMode(Message.PERIODIC);
     					}

@@ -21,8 +21,6 @@ public class SensorReadingProducer extends Thread {
 	private Elvin elvin;
 	private Notification notification;
 	private static volatile boolean EXIT;
-	
-	public static final int MIN_TEMP = 15, MAX_TEMP = 28;
 	private static Message message;
 
 	/**
@@ -105,7 +103,7 @@ public class SensorReadingProducer extends Thread {
 	 */
 	private void sendNonPeriodicTempNot(String type, String value) {
 		numValue = Integer.parseInt(value);
-		if ((numValue < MIN_TEMP || numValue > MAX_TEMP) && (numValue != preValue)) {
+		if ((numValue < Message.AWAY_MAX_TEMP || numValue > Message.AWAY_MIN_TEMP) && (numValue != preValue)) {
 			sendNotification(type, value);
 		}
 		preValue = numValue;

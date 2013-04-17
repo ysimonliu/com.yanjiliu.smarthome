@@ -5,10 +5,15 @@ import org.avis.client.*;
 public class HomeManagerPseudoRPCClientStub {
 	
 	private Message message;
+	private String elvinURL;
 	private Elvin elvin;
 	private String criteria;
 	private static String result;
 	private Subscription response;
+	
+	public HomeManagerPseudoRPCClientStub(String elvinURL) {
+		this.elvinURL = elvinURL;
+	}
 	
 	/**
 	 * Request from EMM of something
@@ -17,7 +22,7 @@ public class HomeManagerPseudoRPCClientStub {
 	 * @param value
 	 * @return
 	 */
-	public String request(String elvinURL, String query, String value) {
+	public String request(String query, String value) {
 		// connect and send to the server
 		try {
 			elvin = new Elvin(elvinURL);
@@ -33,7 +38,7 @@ public class HomeManagerPseudoRPCClientStub {
 		message.setValue(value);
 		message.sendNotification();
 		
-		// wait for response
+		// wait for response for the request. during this period, block calling
 		criteria = Message.FROM + " == " + Message.EMM_NAME + " && " +
 				Message.TO + " == " + Message.HOME_MANAGER_NAME + " && " +
 				Message.QUERY + " == " + query + " && " +

@@ -4,13 +4,29 @@ import java.io.IOException;
 
 import org.avis.client.*;
 
+/**
+ * This class is mainly responsible for sending out notifications that does not require responses
+ * Additionally, it defines the template for a message
+ * @author Yanji Liu
+ *
+ */
 public class Message {
 
+	/* Full dictionary of message template
+	 * From - the component which originated the message
+	 * To - destination component
+	 * Query - command/instruction to execute, but:
+	 *				in the case of sensor sending data, this is sensor type
+	 * Value - necessary value
+	 * Response - response data for a request, usually all other fields remain the same except
+	 * 				that the from and to fields are the opposite. But:
+	 * 				in the case of location sensor sending data, this is the user name
+	 */
+	
 	// key in notifications
 	public final static String TO = "TO";
 	public final static String FROM = "FROM";
 	public final static String QUERY = "QUERY";
-	public final static String USER = "USER";
 	public final static String VALUE = "VALUE";
 	public final static String RESPONSE = "RESPONSE";
 	
@@ -23,9 +39,20 @@ public class Message {
 	// general instructions
 	public final static String SHUTDOWN = "shutdown";
 	
-	// sensor specific instructions
+	// temp sensor specific instructions and data
 	public static final String PERIODIC = "periodic";
 	public static final String NON_PERIODIC = "nonperiodic";
+	public static final int HOME_TEMP = 22;
+	public static final int AWAY_MIN_TEMP = 15, AWAY_MAX_TEMP = 28;
+	
+	// different sensor type
+	public final static String TYPE_TEMPERATURE = "temperature";
+	public final static String TYPE_LOCATION = "location";
+	public final static String TYPE_ENERGY = "energy";
+	
+	// location sensor status
+	public final static String STATUS_HOME = "home";
+	public final static String STATUS_AWAY = "away";
 	
 	// EMM specific instructions
 	public static final String GET_TITLE = "getTitle";
