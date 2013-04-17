@@ -1,16 +1,20 @@
 package components;
 
+import java.util.ArrayList;
+
 import PseudoRPC.Message;
 
-public class LocationInfo {
+public class UsersLocation {
 	
 	// we only support up to 2 occupants of the house
 	private User user1;
 	private User user2;
+	private String status, previousStatus;
 	
-	public LocationInfo() {
+	public UsersLocation() {
 		 user1 = null;
 		 user2 = null;
+		 status = previousStatus = "";
 	}
 	
 	/**
@@ -56,9 +60,37 @@ public class LocationInfo {
 	 */
 	public String getStatus() {
 		if (user1.getStatus() == Message.STATUS_HOME || user2.getStatus() == Message.STATUS_HOME) {
-			return Message.STATUS_HOME;
+			status =  Message.STATUS_HOME;
+		} else {
+			status = Message.STATUS_AWAY;
 		}
-		return Message.STATUS_AWAY;
+		previousStatus = status;
+		return status;
+	}
+	
+	/**
+	 * Get previous status at last update
+	 * @return
+	 */
+	public String getPreviousStatus(){
+		return this.previousStatus;
+	}
+
+	public String[] getWhosHome() {
+		ArrayList<String> whosHome = new ArrayList<String>();
+		if (user1.getStatus() == Message.STATUS_HOME) {
+			whosHome.add(user1.getName());
+		}
+		if (user2.getStatus() == Message.STATUS_HOME) {
+			whosHome.add(user2.getName());
+		}
+		
+		// cast array list to string[]
+		String[] result = new String[whosHome.size()];
+		for (int i = 0; i < whosHome.size(); i++){
+			result[i] = whosHome.get(i);
+		}
+		return result;
 	}
 
 }

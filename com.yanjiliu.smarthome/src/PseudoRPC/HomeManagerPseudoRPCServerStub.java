@@ -1,10 +1,9 @@
 package PseudoRPC;
 
-import java.io.IOException;
-
 import org.avis.client.*;
 
 import components.HomeManager;
+import components.UsersLocation;
 
 public class HomeManagerPseudoRPCServerStub {
 
@@ -12,8 +11,9 @@ public class HomeManagerPseudoRPCServerStub {
 	private Subscription sub;
 	private static String from, to, query, value, response;
 	private static Message message;
+	private static UsersLocation usersLocation;
 	
-	public HomeManagerPseudoRPCServerStub(String elvinURL){
+	public HomeManagerPseudoRPCServerStub(String elvinURL, UsersLocation usersLocation){
 		message = new Message(elvinURL);
 		try {
 			elvin = new Elvin(elvinURL);
@@ -22,6 +22,7 @@ public class HomeManagerPseudoRPCServerStub {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		HomeManagerPseudoRPCServerStub.usersLocation = usersLocation;
 	}
 	
 	private NotificationListener HomeManagerServerStubListener = new NotificationListener(){
@@ -31,7 +32,7 @@ public class HomeManagerPseudoRPCServerStub {
 			query = event.notification.getString(Message.QUERY);
 			value = event.notification.getString(Message.VALUE);
 			switch(from){
-			case Message.SENSOR_NAME: updateSensorData(query, value);
+			case Message.SENSOR_NAME: updateSensorData(query, value, event.notification);
 			case Message.SMART_UI_NAME: processUIQuery(query, value);
 			}
 		}
@@ -40,14 +41,26 @@ public class HomeManagerPseudoRPCServerStub {
 			// TODO Auto-generated method stub
 			
 		}
-
-		private void updateSensorData(String type, String data) {
+		
+		/**
+		 * update sensor data depending on the notification received
+		 * @param type
+		 * @param data
+		 * @param notification
+		 */
+		private void updateSensorData(String type, String data, Notification notification) {
 			if (type == Message.TYPE_TEMPERATURE) {
 				HomeManager.setTemperature(data);
 			} else if (type == Message.TYPE_ENERGY){
 				HomeManager.setEnergy(data);
 			} else if (type == Message.TYPE_LOCATION) {
-				//TODO: should set location here
+				if (value == Message.VALUE_REGISTRATION) {
+					usersLocation.addUser(notification.getString(Message.USER));
+				} else if (value == Message.VALUE_DEREGISTRATION) {
+					usersLocation.removeUser(notification.getString(Message.USER));
+				} else {
+					usersLocation.setStatus(notification.getString(Message.USER), data);
+				}
 			}
 		}
 	};

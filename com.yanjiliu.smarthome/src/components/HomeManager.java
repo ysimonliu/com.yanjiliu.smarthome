@@ -9,7 +9,7 @@ public class HomeManager {
 	private static HomeManagerPseudoRPCServerStub server;
 	private static HomeManagerPseudoRPCClientStub controller;
 	private static String energy, previousEnergy, temperature, tempAdjustLog;
-	private static String[] nowHome, previousHome;
+	private static UsersLocation usersLocation;
 	private static int tempAdjustTime;
 	private static final String EOL = System.getProperty("line.separator"); 
 	
@@ -29,7 +29,8 @@ public class HomeManager {
 			System.exit(1);
 		}
 		
-		server = new HomeManagerPseudoRPCServerStub(elvinURL);
+		usersLocation = new UsersLocation();
+		server = new HomeManagerPseudoRPCServerStub(elvinURL, usersLocation);
 		controller = new HomeManagerPseudoRPCClientStub(elvinURL);
 		// reset temp adjust time and log
 		tempAdjustTime = 0;
@@ -44,7 +45,7 @@ public class HomeManager {
 				// this evaluates location status and switch modes of temp sensor
 				evaluateLocation();
 				// the intelligence of temperature is defined in its method
-				controlTemperature(Integer.parseInt(temperature), nowHome);
+				controlTemperature(Integer.parseInt(temperature), usersLocation.getStatus(), usersLocation.getWhosHome());
 				// this is executed periodically, so thread sleeps 1s
 			} else {
 				// decrement time if aircon is adjusting temp
@@ -65,11 +66,11 @@ public class HomeManager {
 	 */
 	private static void evaluateLocation() {
 		// only send notification when who's home is now different than last time
-		if (nowHome != previousHome) {
-			switch(nowHome.length) {
-			case 0: controller.switchTempMode(Message.NON_PERIODIC);
+		if (usersLocation.getPreviousStatus() != usersLocation.getStatus()) {
+			switch(usersLocation.getStatus()) {
+			case Message.STATUS_AWAY: controller.switchTempMode(Message.NON_PERIODIC);
 				break;
-			default: controller.switchTempMode(Message.PERIODIC);
+			case Message.STATUS_HOME: controller.switchTempMode(Message.PERIODIC);
 				break;
 			}
 		}
@@ -89,10 +90,14 @@ public class HomeManager {
 	 * depending on the location data as well as the temperature data
 	 * Because too much logic here, I keep a copy of currentTemp and currentLocation for use
 	 */
-	private static void controlTemperature(int currentTemp, String[] nowHome) {
-		if (nowHome.length != 0) {
+	private static void controlTemperature(int currentTemp, String locationStatus, String[] whosHome) {
+		if (locationStatus == Message.STATUS_HOME) {
 			if (currentTemp != Message.HOME_TEMP) {
-				adjustTemp(currentTemp, nowHome);
+				adjustTemp(currentTemp, whosHome);
+			}
+		} else if (locationStatus == Message.STATUS_AWAY) {
+			if (currentTemp < Message.AWAY_MIN_TEMP || currentTemp > Message.AWAY_MAX_TEMP) {
+				adjustTemp(currentTemp, whosHome);
 			}
 		}
 	}
@@ -130,15 +135,6 @@ public class HomeManager {
 	public static void setEnergy(String newEnergy) {
 		previousEnergy = energy;
 		energy = newEnergy;
-	}
-	
-	/**
-	 * setters for location, accessible by client stub to update data
-	 * @param newLocation
-	 */
-	public static void setLocation(String[] whosHome) {
-		previousHome = nowHome;
-		nowHome = whosHome;
 	}
 	
 	/**

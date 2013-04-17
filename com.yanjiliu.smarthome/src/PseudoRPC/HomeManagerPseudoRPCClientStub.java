@@ -33,7 +33,7 @@ public class HomeManagerPseudoRPCClientStub {
 	 * @param value
 	 * @return
 	 */
-	public String request(String query, String value) {
+	public String requestFromEMM(String query, String value) {
 		// send request message on the server
 		message.clear();
 		message.setFrom(Message.HOME_MANAGER_CLIENT_STUB);
