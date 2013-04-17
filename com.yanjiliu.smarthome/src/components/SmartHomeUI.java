@@ -3,15 +3,30 @@ package components;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.ConnectException;
+
+import org.avis.client.*;
 
 import PseudoRPC.Message;
 
 public class SmartHomeUI {
 	
-	private static String elvinURL;
-	private static Message message;
-	private static String input;
+	private static String elvinURL, input;
+	private final static String ENERGY_SUB_CRITERIA = Message.FROM + " == " + Message.HOME_MANAGER_CLIENT_STUB + " && " +
+			Message.TO + " == " + Message.HOME_MANAGER_CLIENT_STUB + " && " +
+			Message.QUERY + " == " + Message.WARN;
+	private static Elvin elvin;
+	private static Subscription subscription;
 	private static BufferedReader stdin;
+	
+	private static NotificationListener UIListener = new NotificationListener(){
+		// upon notification received, execute the following actions
+		public void notificationReceived(NotificationEvent event){
+			System.out.println("Energy Usage Warning: Current electricity consumption is " + 
+					event.notification.getString(Message.VALUE) + ".");
+			System.out.println("Please consider the environment before switching on any electrical appliance.");
+		}
+	};
 	
 	public static void main(String[] args) {
 		// reads the parameter into variable
@@ -25,8 +40,17 @@ public class SmartHomeUI {
 			System.exit(1);
 		}
 		
-		message = new Message(elvinURL);
+		//add listener to energy over consumption
+		try {
+			elvin = new Elvin(elvinURL);
+			subscription = elvin.subscribe(ENERGY_SUB_CRITERIA);
+			subscription.addListener(UIListener);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
+		
+		// load menu
 		welcomeMessage();
 		mainMenu();
 	}
@@ -95,4 +119,6 @@ public class SmartHomeUI {
 	private static void viewLog() {
 		
 	}
+	
+	
 }
