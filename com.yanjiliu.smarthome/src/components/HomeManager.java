@@ -5,7 +5,6 @@ import PseudoRPC.*;
 public class HomeManager {
 	
 	private static String elvinURL;
-	private static Message message;
 	private static boolean EXIT;
 	private static HomeManagerPseudoRPCServerStub server;
 	private static HomeManagerPseudoRPCClientStub controller;
@@ -68,9 +67,9 @@ public class HomeManager {
 		// only send notification when who's home is now different than last time
 		if (nowHome != previousHome) {
 			switch(nowHome.length) {
-			case 0: switchTempMode(Message.NON_PERIODIC);
+			case 0: controller.switchTempMode(Message.NON_PERIODIC);
 				break;
-			default: switchTempMode(Message.PERIODIC);
+			default: controller.switchTempMode(Message.PERIODIC);
 				break;
 			}
 		}
@@ -81,7 +80,7 @@ public class HomeManager {
 	 */
 	private static void monitorEnergy() {
 		if (Integer.parseInt(energy) > 4000 && energy != previousEnergy) {
-			warnUI(energy);
+			controller.warnUI(energy);
 		}
 	}
 
@@ -152,43 +151,6 @@ public class HomeManager {
 	
 	public static String getTempAdjustLog() {
 		return tempAdjustLog;
-	}
-	
-	/**
-	 * This method sends out a notification to the UI to warn about energy overusage
-	 * @param energyConsumption
-	 */
-	private static void warnUI(String energyConsumption) {
-		message.clear();
-		message.setFrom(Message.HOME_MANAGER_NAME);
-		message.setTo(Message.SMART_UI_NAME);
-		message.setQuery(Message.WARN);
-		message.setValue(energyConsumption);
-		message.sendNotification();
-	}
-	
-	/**
-	 * This method sends out a notification to shut off a component
-	 * @param to - destination component
-	 */
-	public void shutdownComponent(String componentToShutDown) {
-		message.clear();
-		message.setFrom(Message.HOME_MANAGER_NAME);
-		message.setTo(componentToShutDown);
-		message.setQuery(Message.SHUTDOWN);
-		message.sendNotification();
-	}
-	
-	/**
-	 * This method sends out a notification to temperature sensor to switch mode
-	 * @param mode - periodic? OR non-periodic?
-	 */
-	public static void switchTempMode(String mode){
-		message.clear();
-		message.setFrom(Message.HOME_MANAGER_NAME);
-		message.setTo(Message.SENSOR_NAME);
-		message.setQuery(mode);
-		message.sendNotification();
 	}
 	
 	/**

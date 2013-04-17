@@ -16,7 +16,7 @@ public class EMM {
 	private static MusicFileList mfl;
 	private static String lineContent, fileName, title, disc, track, from, instruction, temp;
 	private static String[] values;
-	private static Message message = new Message();
+	private static Message message;
 	
 	private static NotificationListener emmlistener = new NotificationListener(){
 		// upon notification received, execute the following actions
@@ -70,6 +70,9 @@ public class EMM {
 			System.exit(1);
 		}
 	
+		// initialize message
+		message = new Message(elvinURL);
+		
 		// read file into data structure
 		try {
 			readFile(dataFileName);

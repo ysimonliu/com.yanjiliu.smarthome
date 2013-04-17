@@ -1,7 +1,6 @@
 package components;
 
 import org.avis.client.*;
-import org.avis.common.InvalidURIException;
 
 import PseudoRPC.Message;
 
@@ -9,17 +8,15 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.ConnectException;
 
 public class SensorReadingProducer extends Thread {
 	
 	private static FileReader fr;
 	private static BufferedReader br;
-	private String type, fileName, elvinURL, lineContent, value, mode;
+	private String type, fileName, elvinURL, lineContent, value, mode, userName;
 	private static int period, numValue, preValue;
 	private String[] values;
 	private Elvin elvin;
-	private Notification notification;
 	private static volatile boolean EXIT;
 	private static Message message;
 
@@ -31,6 +28,9 @@ public class SensorReadingProducer extends Thread {
 	 */
 	public SensorReadingProducer(String type, String fileName, String elvinURL) {
 		this.type = type;
+		if (type == Message.TYPE_LOCATION) {
+			this.userName = parseLocationUserName(fileName);
+		}
 		this.fileName = fileName;
 		this.elvinURL = elvinURL;
 		period = 0;
@@ -45,6 +45,11 @@ public class SensorReadingProducer extends Thread {
 	 */
 	public void run(){
 		message = new Message(elvinURL);
+		
+		// if it's location sensor. we need to send registration data to home manager to register the user
+		if (type == Message.TYPE_LOCATION) {
+			registerUser();
+		}
 		
 		// read data from given file
 		try {
@@ -95,7 +100,7 @@ public class SensorReadingProducer extends Thread {
 		}
 		
 	}
-	
+
 	/**
 	 * This method determines what values to put on Elvin when it's a temperature sensor in Non Periodic mode
 	 * @param type
@@ -117,9 +122,12 @@ public class SensorReadingProducer extends Thread {
 	private void sendNotification(String type, String value) {
 		message.clear();
 		message.setFrom(Message.SENSOR_NAME);
-		message.setTo(Message.HOME_MANAGER_NAME);
+		message.setTo(Message.HOME_MANAGER_SERVER_STUB);
 		message.setQuery(type);
 		message.setValue(value);
+		if (type == Message.TYPE_LOCATION) {
+			message.setUser(userName);
+		}
 		message.sendNotification();
 	}
 	
@@ -134,11 +142,51 @@ public class SensorReadingProducer extends Thread {
 	}
 
 	/**
+	 * This little helper function parses the file name and returns the name of the user when the sensor is location sensor
+	 * @param file
+	 * @return
+	 */
+	private String parseLocationUserName(String fileName) {
+		// we assume the file name is "<username1> Location.txt"
+		return fileName.substring(fileName.length() - 13, fileName.length()-1);
+	}
+	
+	/**
+	 * This method will send a notification to the home manager server stub to register user
+	 * this is only called once when a location sensor data file is loaded
+	 */
+	private void registerUser() {
+		message.clear();
+		message.setFrom(Message.SENSOR_NAME);
+		message.setTo(Message.HOME_MANAGER_SERVER_STUB);
+		message.setQuery(type);
+		message.setValue(Message.VALUE_REGISTRATION);
+		message.setUser(userName);
+		message.sendNotification();
+	}
+	
+	/**
+	 * This method deregisters user from home manager server stub
+	 */
+	private void deregisterUser() {
+		message.clear();
+		message.setFrom(Message.SENSOR_NAME);
+		message.setTo(Message.HOME_MANAGER_SERVER_STUB);
+		message.setQuery(type);
+		message.setValue(Message.VALUE_REGISTRATION);
+		message.setUser(userName);
+		message.sendNotification();
+	}
+	
+	/**
 	 * This class will exit the current sensor
 	 * @throws IOException 
 	 */
 	public void exitSensor() throws IOException {
 		EXIT = true;
+		if (type == Message.TYPE_LOCATION){
+			deregisterUser();
+		}
 		elvin.close();
 		br.close();
 		fr.close();
