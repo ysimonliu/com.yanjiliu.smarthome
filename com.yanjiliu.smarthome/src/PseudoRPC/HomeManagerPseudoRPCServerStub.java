@@ -1,10 +1,25 @@
 package PseudoRPC;
 
-public class HomeManagerPseudoRPCServerStub {
+import org.avis.client.*;
 
-	private String elvinURL;
+public class HomeManagerPseudoRPCServerStub extends Thread{
+
+	private Elvin elvin;
 	
 	public HomeManagerPseudoRPCServerStub(String elvinURL){
-		this.elvinURL = elvinURL;
+		try {
+			elvin = new Elvin(elvinURL);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void run() {
+		
+	}
+	
+	public void exit() {
+		elvin.close();
+		Thread.currentThread().interrupt();
 	}
 }

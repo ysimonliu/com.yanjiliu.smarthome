@@ -58,5 +58,9 @@ public class HomeManagerPseudoRPCClientStub {
 		// return the result
 		return result;
 	}
+
+	public void exit() {
+		elvin.close();
+	}
 	
 }

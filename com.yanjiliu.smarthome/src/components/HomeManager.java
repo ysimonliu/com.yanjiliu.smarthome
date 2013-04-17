@@ -196,6 +196,8 @@ public class HomeManager {
 	 */
 	public void exit(){
 		EXIT = true;
+		server.exit();
+		controller.exit();
 		System.exit(0);
 	}
 }
