@@ -8,6 +8,7 @@ import java.net.ConnectException;
 import org.avis.client.*;
 
 import pseudoRPC.Message;
+import pseudoRPC.SmartHomeUIClientPseudoRPC;
 
 
 public class SmartHomeUI {
@@ -19,7 +20,9 @@ public class SmartHomeUI {
 	private static Elvin elvin;
 	private static Subscription subscription;
 	private static BufferedReader stdin;
+	private static SmartHomeUIClientPseudoRPC UIclient;
 	
+	// this listener listens to the message from Home Manager only about the energy consumption warnings
 	private static NotificationListener UIListener = new NotificationListener(){
 		// upon notification received, execute the following actions
 		public void notificationReceived(NotificationEvent event){
@@ -50,6 +53,8 @@ public class SmartHomeUI {
 			e.printStackTrace();
 		}
 		
+		// instantiate the clientr stub
+		UIclient = new SmartHomeUIClientPseudoRPC(elvinURL);
 		
 		// load menu
 		welcomeMessage();
@@ -102,23 +107,28 @@ public class SmartHomeUI {
 		mainMenu();
 	}
 
+	/**
+	 * This method will notify the home manager to shut down, close elvin connection
+	 * tells the client stub to exit, and then exit the whole program itself
+	 */
 	private static void exit() {
-		// TODO Auto-generated method stub
-		
+		UIclient.shutdownHomeManager();
+		elvin.close();
+		UIclient.exit();
+		System.exit(0);
 	}
 
-	private static void viewDiscTracks() {
-		// TODO Auto-generated method stub
-		
+	private static void viewDiscTracks(String fileName) {
+		UIclient.requestFromSmartHome(Message.GET_TRACKS, fileName);
+		// TODO: add "ENTER" to proceed
 	}
 
 	private static void viewMediaFiles() {
-		// TODO Auto-generated method stub
-		
+		UIclient.requestFromSmartHome(Message.VIEW_MEDIA_FILES, null);
 	}
 
 	private static void viewLog() {
-		
+		UIclient.requestFromSmartHome(Message.VIEW_TEMPERATURE_LOG, null);
 	}
 	
 	

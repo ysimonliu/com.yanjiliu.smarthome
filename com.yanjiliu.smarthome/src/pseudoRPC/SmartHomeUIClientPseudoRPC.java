@@ -51,4 +51,15 @@ public class SmartHomeUIClientPseudoRPC {
 		// return the result
 		return result;
 	}
+
+	public void shutdownHomeManager() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void exit() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

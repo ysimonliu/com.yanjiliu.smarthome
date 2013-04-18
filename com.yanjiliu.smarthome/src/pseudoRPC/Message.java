@@ -65,12 +65,15 @@ public class Message {
 	public static final String GET_DISC = "getDisc";
 	public static final String GET_TRACKS = "getTracks";
 	public static final String GET_FILES = "getFiles";
+	public static final String VIEW_MEDIA_FILES = "viewMediaFiles";
+	public static final String VIEW_TEMPERATURE_LOG = "viewTemperatureLog";
 	
 	// UI specific instructions
 	public static final String WARN = "warn";
-	
 	public final static String DEFAULT_ELVIN_URL = "elvin://0.0.0.0:2917";
 	//public final static String DEFAULT_REMOTE_ELVIN_URL = "elvin://elvin.students.itee.uq.edu.au";
+
+	
 	private Notification notification;
 	private Elvin elvin;
 	
