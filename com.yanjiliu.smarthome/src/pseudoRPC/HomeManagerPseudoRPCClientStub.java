@@ -117,11 +117,13 @@ public class HomeManagerPseudoRPCClientStub {
 	 * This method sends out a notification to temperature sensor to switch mode
 	 * @param mode - periodic? OR non-periodic?
 	 */
-	public void switchTempMode(String mode){
+	public static void switchTempMode(String mode){
 		message.clear();
 		message.setFrom(Message.HOME_MANAGER_CLIENT_STUB);
 		message.setTo(Message.SENSOR_NAME);
+		message.setType(Message.TYPE_TEMPERATURE);
 		message.setQuery(mode);
+		
 		message.sendNotification();
 	}
 	

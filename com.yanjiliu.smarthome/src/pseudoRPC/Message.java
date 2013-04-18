@@ -220,4 +220,12 @@ public class Message {
 	public static String criteriaBuilder(String key, String value) {
 		return key + " == '" + value + "'";
 	}
+	
+	/**
+	 * This message clears notification and closes the elvin connection
+	 */
+	public void destroy(){
+		this.clear();
+		this.elvin.close();
+	}
 }

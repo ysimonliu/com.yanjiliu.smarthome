@@ -17,7 +17,6 @@ public class SensorReadingProducer extends Thread {
 	private String type, fileName, elvinURL, lineContent, value, userName, tempMode;
 	private static int period, numValue, preValue;
 	private String[] values;
-	private Elvin elvin;
 	private volatile boolean EXIT;
 	private static Message message;
 
@@ -113,9 +112,7 @@ public class SensorReadingProducer extends Thread {
 	 */
 	private void sendNonPeriodicTempNot(String type, String value) {
 		numValue = Integer.parseInt(value);
-		System.out.println("I'm in sendNonPeriodic");
-		if ((numValue < Message.AWAY_MAX_TEMP || numValue > Message.AWAY_MIN_TEMP) && (numValue != preValue)) {
-			System.out.println("I sent out notifications");
+		if ((numValue > Message.AWAY_MAX_TEMP || numValue < Message.AWAY_MIN_TEMP) && (numValue != preValue)) {
 			sendNotification(type, value);
 		}
 		preValue = numValue;
@@ -146,7 +143,6 @@ public class SensorReadingProducer extends Thread {
 	 * @param mode
 	 */
 	public void setTemperatureMode(String tempMode) {
-		System.out.println("YES! I'm in changeTemperatureMode");
 		this.tempMode = tempMode;
 	}
 
@@ -192,13 +188,14 @@ public class SensorReadingProducer extends Thread {
 	 * @throws IOException 
 	 */
 	public void exitSensor() throws IOException {
+		System.out.println("DEBUG: EXITING sensor");
 		this.EXIT = true;
 		if (type.equals(Message.TYPE_LOCATION)){
 			deregisterUser();
 		}
-		elvin.close();
 		br.close();
 		fr.close();
+		message.destroy();
 		Thread.currentThread().interrupt();
 	}
 

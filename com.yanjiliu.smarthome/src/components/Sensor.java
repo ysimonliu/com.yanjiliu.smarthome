@@ -12,7 +12,7 @@ import pseudoRPC.Message;
 public class Sensor{
 	
 	// below is only for test data
-	public final static String FILENAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\Temperature.txt";
+	public final static String TEMP_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\Temperature.txt";
 	// end of test data
 	private static String type, fileName, elvinURL;
 	private static Elvin elvin;
@@ -28,7 +28,7 @@ public class Sensor{
 			//fileName = args[1];
 			//elvinURL = args[2];
 			type = Message.TYPE_TEMPERATURE;
-			fileName = FILENAME;
+			fileName = TEMP_TEST_NAME;
 			elvinURL = Message.DEFAULT_ELVIN_URL;
 		//} else {
 		//	System.exit(1);
@@ -44,11 +44,6 @@ public class Sensor{
     		Subscription sub = elvin.subscribe(Message.criteriaBuilder(Message.TO, Message.SENSOR_NAME) + " && " + Message.criteriaBuilder(Message.TYPE, type));
     		sub.addListener(new NotificationListener(){
     			public void notificationReceived(NotificationEvent event){
-    				/*System.out.println("DEBUG: checkpoint 1");
-    				System.out.println("From: " + event.notification.getString(Message.FROM));
-    				System.out.println("Type: " + event.notification.getString(Message.TYPE));
-    				System.out.println("Value: " + event.notification.getString(Message.VALUE)); */
-    				System.out.println(event.notification.getString(Message.TYPE).equals(Message.TYPE_TEMPERATURE));
     				// if told to shutdown, do it
     				if(event.notification.get(Message.QUERY).equals(Message.SHUTDOWN)) {
     					try {
@@ -63,12 +58,10 @@ public class Sensor{
     				}
     				// if type is temperature, then listen for mode changing instructions
     				else if (event.notification.getString(Message.TYPE).equals(Message.TYPE_TEMPERATURE)){
-    					System.out.println("DEBUG: checkpoint 1");
     					if(event.notification.get(Message.QUERY).equals(Message.PERIODIC)) {
     						srp.setTemperatureMode(Message.PERIODIC);
     					}
     					else if (event.notification.get(Message.QUERY).equals(Message.NON_PERIODIC)) {
-    	    				System.out.println("DEBUG: checkpoint 2");
     						srp.setTemperatureMode(Message.NON_PERIODIC);
     					}
     				}
