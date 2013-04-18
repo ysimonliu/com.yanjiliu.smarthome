@@ -12,9 +12,9 @@ import pseudoRPC.Message;
 public class Sensor{
 	
 	// below is only for test data
-	public final static String TEMP_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\Temperature.txt";
-	public final static String USER1_LOCATION_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\User1Location.txt";
-	public final static String USER2_LOCATION_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\User2Location.txt";
+	//public final static String TEMP_TEST_NAME = "C:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\Temperature.txt";
+	//public final static String USER1_LOCATION_TEST_NAME = "C:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\User1Location.txt";
+	//public final static String USER2_LOCATION_TEST_NAME = "C:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\User2Location.txt";
 
 	// end of test data
 	private static String type, fileName, elvinURL;
@@ -25,17 +25,13 @@ public class Sensor{
 	 * @author Yanji Liu
 	 */
 	public static void main(String[] args){
-		//if (args.length == 3) {
-			// TODO: correct it back to arg[1] after test
-			//type = args[0];
-			//fileName = args[1];
-			//elvinURL = args[2];
-			type = Message.TYPE_LOCATION;
-			fileName = USER1_LOCATION_TEST_NAME;
-			elvinURL = Message.DEFAULT_ELVIN_URL;
-		//} else {
-		//	System.exit(1);
-		//}
+		if (args.length == 3) {
+			type = args[0];
+			fileName = args[1];
+			elvinURL = args[2];
+		} else {
+			System.exit(1);
+		}
 			
 		// start a separate thread to produce sensor readings, this process is marked as final for shutoff and changeMode use
 		final SensorReadingProducer srp = new SensorReadingProducer(type, fileName, elvinURL);

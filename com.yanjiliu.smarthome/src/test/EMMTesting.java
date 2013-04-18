@@ -12,13 +12,20 @@ public class EMMTesting {
 	private static Subscription response;
 	private static String elvinURL;
 	
-	public static void requestFromEMM(String query, String value) {
+	public static String requestFromEMM(String query, String value) {
 		// send request message on the server
 		message.clear();
 		message.setFrom(Message.HOME_MANAGER_CLIENT_STUB);
 		message.setTo(Message.EMM_NAME);
 		message.setQuery(query);
 		message.setValue(value);
+		/*
+		// for testing purpose
+		System.out.println("From: " + message.getFrom());
+		System.out.println("To: " + message.getTo());
+		System.out.println("Query: " + message.getQuery());
+		System.out.println("Value: " + message.getValue());
+		*/
 		message.sendNotification();
 		
 		// connect to the server
@@ -28,35 +35,40 @@ public class EMMTesting {
 			e.printStackTrace();
 		}
 		
+		System.out.println("DEBUG: check point 3");
+		
 		// wait for response for the request. during this period, block calling
-		criteria = Message.FROM + " == " + Message.EMM_NAME + " && " +
-				Message.TO + " == " + Message.HOME_MANAGER_CLIENT_STUB + " && " +
-				Message.QUERY + " == " + query + " && " +
-				Message.VALUE + " == " + value;
-		System.out.println(criteria);
+		criteria = Message.criteriaBuilder(Message.FROM, Message.EMM_NAME) + " && " +
+				Message.criteriaBuilder(Message.TO, Message.HOME_MANAGER_CLIENT_STUB) + " && " +
+				Message.criteriaBuilder(Message.QUERY, query) + " && " +
+				Message.criteriaBuilder(Message.VALUE, value);
 		
 		try {
 			response = elvin.subscribe(criteria);
 			response.addListener(new NotificationListener() {
 				public void notificationReceived(NotificationEvent event) {
+					System.out.println("DEBUG: check point 4");
 					result = event.notification.getString(Message.RESPONSE);
-					System.out.println("The From is " + event.notification.getString(Message.FROM));
-					System.out.println("The To is " + event.notification.getString(Message.TO));
-					System.out.println("The Query is " + event.notification.getString(Message.QUERY));
-					System.out.println("The Value is " + event.notification.getString(Message.VALUE));
-					System.out.println("The response is " + result);
-					System.out.println();
 					elvin.close();
 				}
 			});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		// FIXME: Does it wait till it returns the result?
+		
+		// return the result
+		while(result == null) {};
+		return result;
 	}
 	
 	public static void main(String[] args) {
 		elvinURL = Message.DEFAULT_ELVIN_URL;
 		message = new Message(Message.DEFAULT_ELVIN_URL);
-		requestFromEMM(Message.GET_DISC, "Let it be");
+		System.out.println(requestFromEMM(Message.GET_TITLE, "track2.mp3"));
+		System.out.println(requestFromEMM(Message.GET_DISC, "Let It Be"));
+		System.out.println(requestFromEMM(Message.GET_TRACKS, "Let It Be"));
+		System.out.println(requestFromEMM(Message.GET_FILES, ""));
 	}
 }

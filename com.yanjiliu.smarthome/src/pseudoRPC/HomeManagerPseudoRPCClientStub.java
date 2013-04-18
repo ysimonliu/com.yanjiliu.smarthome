@@ -117,7 +117,7 @@ public class HomeManagerPseudoRPCClientStub {
 	 * This method sends out a notification to temperature sensor to switch mode
 	 * @param mode - periodic? OR non-periodic?
 	 */
-	public static void switchTempMode(String mode){
+	public void switchTempMode(String mode){
 		message.clear();
 		message.setFrom(Message.HOME_MANAGER_CLIENT_STUB);
 		message.setTo(Message.SENSOR_NAME);
@@ -131,7 +131,7 @@ public class HomeManagerPseudoRPCClientStub {
 	 * exit the client stub
 	 */
 	public void exit() {
-		elvin.close();
+		message.destroy();
 	}
 	
 }
