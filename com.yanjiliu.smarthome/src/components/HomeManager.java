@@ -150,22 +150,23 @@ public class HomeManager {
 	}
 	
 	/**
-	 * Exit the home manager
+	 * Exit the home manager gracefully along with the client and server stub
 	 */
-	public void exit(){
+	public static void exit(){
+		// reset the EXIT value so no more evaluation/monitoring is executed
 		EXIT = true;
+		
+		// notify the client and server stub to exit
 		server.exit();
 		controller.exit();
 		System.exit(0);
 	}
 
 	public static String getMediaFiles() {
-		// TODO Auto-generated method stub
-		return null;
+		return controller.requestFromEMM(Message.GET_FILES, "");
 	}
 
 	public static String getTracks(String value) {
-		// TODO Auto-generated method stub
-		return null;
+		return controller.requestFromEMM(Message.GET_TRACKS, value);
 	}
 }

@@ -107,7 +107,7 @@ public class SmartHomeUI {
 	}
 
 	/**
-	 * This method will notify the home manager to shut down, close elvin connection
+	 * This method will notify the home manager to shut down, remove subscription, close elvin connection
 	 * tells the client stub to exit, and then exit the whole program itself
 	 */
 	private static void exit() {

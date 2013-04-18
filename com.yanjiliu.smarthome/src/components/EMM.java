@@ -2,6 +2,7 @@ package components;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 
 import org.avis.client.*;
 
@@ -19,6 +20,7 @@ public class EMM {
 	private static String lineContent, fileName, title, disc, track, from, query, temp;
 	private static String[] values;
 	private static Message message;
+	private static Subscription sub;
 	
 	private static NotificationListener emmlistener = new NotificationListener(){
 		// upon notification received, execute the following actions
@@ -46,6 +48,9 @@ public class EMM {
 			else if (query.equals(Message.GET_FILES)) {
 				sendNotification(from, query, 
 						event.notification.getString(Message.VALUE), mfl.getFiles());
+			}
+			else if (query.equals(Message.SHUTDOWN)) {
+				EMM.exit();
 			}
 			
 			System.out.println("DEBUG: check point 2");
@@ -90,19 +95,19 @@ public class EMM {
 			e.printStackTrace();
 		}
 	
-		/*
+		
 		// subscribe to elvin instructions
 		try{
 			elvin = new Elvin(elvinURL);
-			Subscription sub = elvin.subscribe(Message.criteriaBuilder(Message.TO, Message.EMM_NAME)); 
+			sub = elvin.subscribe(Message.criteriaBuilder(Message.TO, Message.EMM_NAME)); 
 			System.out.println(Message.criteriaBuilder(Message.TO, Message.EMM_NAME));
 			sub.addListener(emmlistener);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		*/
+		
 	}
-	
+
 	/**
 	 * This method reads the predefined data file for the EMM. format is assumed correct with no violation
 	 * @param fileName
@@ -141,5 +146,16 @@ public class EMM {
 			// add this record to music file list
 			mfl.addFile(fileName, title, disc, track);
 		}
+	}
+	
+	// exit the EMM component gracefully
+	private static void exit() {
+		// remove the subscription and close elvin connection
+		try {
+			sub.remove();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		elvin.close();
 	}
 }

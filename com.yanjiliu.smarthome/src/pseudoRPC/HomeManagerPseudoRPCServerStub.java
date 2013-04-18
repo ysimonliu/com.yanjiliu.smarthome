@@ -49,6 +49,8 @@ public class HomeManagerPseudoRPCServerStub {
 				break;
 			case (Message.GET_TRACKS): response = HomeManager.getTracks(value);
 				break;
+			case (Message.SHUTDOWN): HomeManager.exit();
+				break;
 			}
 			
 			// send the result back to the request component, here smartHomeUI is the requesting server for sure

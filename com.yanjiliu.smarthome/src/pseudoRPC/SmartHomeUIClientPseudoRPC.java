@@ -82,7 +82,11 @@ public class SmartHomeUIClientPseudoRPC {
 		message.sendNotification();
 	}
 
+	/**
+	 * This method will first notify the home manager to exit and then destroy message (close elvin connection)
+	 */
 	public void exit() {
+		shutdownHomeManager();
 		message.destroy();
 	}
 

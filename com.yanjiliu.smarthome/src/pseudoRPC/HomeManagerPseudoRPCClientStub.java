@@ -140,6 +140,15 @@ public class HomeManagerPseudoRPCClientStub {
 	 * exit the client stub
 	 */
 	public void exit() {
+		// notify the all sensors to shut down
+		shutdownComponent(Message.SENSOR_NAME, Message.TYPE_ENERGY);
+		shutdownComponent(Message.SENSOR_NAME, Message.TYPE_LOCATION);
+		shutdownComponent(Message.SENSOR_NAME, Message.TYPE_TEMPERATURE);
+		
+		// notify the EMM to shut down
+		shutdownComponent(Message.EMM_NAME);
+		
+		// destroy the message by closing elvin connection
 		message.destroy();
 	}
 	
