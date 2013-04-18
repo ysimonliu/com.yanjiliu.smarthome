@@ -14,11 +14,11 @@ public class SensorReadingProducer extends Thread {
 	
 	private static FileReader fr;
 	private static BufferedReader br;
-	private String type, fileName, elvinURL, lineContent, value, mode, userName;
+	private String type, fileName, elvinURL, lineContent, value, userName, mode;
 	private static int period, numValue, preValue;
 	private String[] values;
 	private Elvin elvin;
-	private static volatile boolean EXIT;
+	private volatile boolean EXIT;
 	private static Message message;
 
 	/**
@@ -36,7 +36,7 @@ public class SensorReadingProducer extends Thread {
 		this.elvinURL = elvinURL;
 		period = 0;
 		mode = Message.PERIODIC;
-		EXIT = false;
+		this.EXIT = false;
 		preValue = 0;
 		numValue = 0;
 	}
@@ -59,8 +59,10 @@ public class SensorReadingProducer extends Thread {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+		
+		
 		// parse the file regardless of the type
-		while(!EXIT) {
+		while(!this.EXIT) {
 			
 			// reads the next line. If reached the end of file, start over on the same file
 			try {
@@ -81,9 +83,9 @@ public class SensorReadingProducer extends Thread {
 			period = Integer.parseInt(values[1]);
 			
 			// for the given period of time, keep sending notification to Elvin with the same value
-			while (period > 0 && !EXIT){
+			while (period > 0 && !this.EXIT){
 				// depends on the type, put notifications on Elvin
-				if (type == "temperature" && mode == Message.NON_PERIODIC) {
+				if (type == Message.TYPE_TEMPERATURE && mode == Message.NON_PERIODIC) {
 					sendNonPeriodicTempNot(type, value);
 				} else {
 					sendNotification(type, value);
@@ -109,7 +111,9 @@ public class SensorReadingProducer extends Thread {
 	 */
 	private void sendNonPeriodicTempNot(String type, String value) {
 		numValue = Integer.parseInt(value);
+		System.out.println("I'm in sendNonPeriodic");
 		if ((numValue < Message.AWAY_MAX_TEMP || numValue > Message.AWAY_MIN_TEMP) && (numValue != preValue)) {
+			System.out.println("I sent out notifications");
 			sendNotification(type, value);
 		}
 		preValue = numValue;
@@ -124,10 +128,13 @@ public class SensorReadingProducer extends Thread {
 		message.clear();
 		message.setFrom(Message.SENSOR_NAME);
 		message.setTo(Message.HOME_MANAGER_SERVER_STUB);
-		message.setQuery(type);
+		message.setType(type);
 		message.setValue(value);
+		
 		if (type == Message.TYPE_LOCATION) {
 			message.setUser(userName);
+			// FIXME: this is for testing
+			//System.out.println("USER: " + message.getUser());
 		}
 		message.sendNotification();
 	}
@@ -137,9 +144,8 @@ public class SensorReadingProducer extends Thread {
 	 * @param mode
 	 */
 	public void changeTemperatureMode(String mode) {
-		if (type == "temperature"){
-			this.mode = mode;
-		}
+		System.out.println("YES! I'm in changeTemperatureMode");
+		this.mode = mode;
 	}
 
 	/**
@@ -160,8 +166,8 @@ public class SensorReadingProducer extends Thread {
 		message.clear();
 		message.setFrom(Message.SENSOR_NAME);
 		message.setTo(Message.HOME_MANAGER_SERVER_STUB);
-		message.setQuery(type);
-		message.setValue(Message.VALUE_REGISTRATION);
+		message.setType(type);
+		message.setQuery(Message.VALUE_REGISTRATION);
 		message.setUser(userName);
 		message.sendNotification();
 	}
@@ -173,8 +179,8 @@ public class SensorReadingProducer extends Thread {
 		message.clear();
 		message.setFrom(Message.SENSOR_NAME);
 		message.setTo(Message.HOME_MANAGER_SERVER_STUB);
-		message.setQuery(type);
-		message.setValue(Message.VALUE_REGISTRATION);
+		message.setType(type);
+		message.setQuery(Message.VALUE_REGISTRATION);
 		message.setUser(userName);
 		message.sendNotification();
 	}
@@ -184,7 +190,7 @@ public class SensorReadingProducer extends Thread {
 	 * @throws IOException 
 	 */
 	public void exitSensor() throws IOException {
-		EXIT = true;
+		this.EXIT = true;
 		if (type == Message.TYPE_LOCATION){
 			deregisterUser();
 		}

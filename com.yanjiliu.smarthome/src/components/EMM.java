@@ -84,7 +84,7 @@ public class EMM {
 		// subscribe to elvin instructions
 		try{
 			elvin = new Elvin(elvinURL);
-			Subscription sub = elvin.subscribe(Message.TO + " == " + Message.EMM_NAME); 
+			Subscription sub = elvin.subscribe(Message.criteriaBuilder(Message.TO, Message.EMM_NAME)); 
 			sub.addListener(emmlistener);
 		} catch (Exception e) {
 			e.printStackTrace();

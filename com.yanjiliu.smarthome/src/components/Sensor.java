@@ -12,7 +12,7 @@ import pseudoRPC.Message;
 public class Sensor{
 	
 	// below is only for test data
-	public final static String FILENAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\sensors\\Temperature.txt";
+	public final static String FILENAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\Temperature.txt";
 	// end of test data
 	private static String type, fileName, elvinURL;
 	private static Elvin elvin;
@@ -41,7 +41,7 @@ public class Sensor{
 		// subscribe to elvin instructions
     	try{
     		elvin = new Elvin(elvinURL);
-    		Subscription sub = elvin.subscribe(Message.QUERY + " == " + type);
+    		Subscription sub = elvin.subscribe(Message.criteriaBuilder(Message.TO, Message.SENSOR_NAME) + " && " + Message.criteriaBuilder(Message.TYPE, type));
     		sub.addListener(new NotificationListener(){
     			public void notificationReceived(NotificationEvent event){
     				// if told to shutdown, do it
@@ -61,6 +61,7 @@ public class Sensor{
     						srp.changeTemperatureMode(Message.PERIODIC);
     					}
     					else if (event.notification.get(Message.QUERY) == Message.NON_PERIODIC) {
+    	    				System.out.println("DEBUG: checkpoint 2");
     						srp.changeTemperatureMode(Message.NON_PERIODIC);
     					}
     				}

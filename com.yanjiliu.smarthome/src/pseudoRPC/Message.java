@@ -30,7 +30,9 @@ public class Message {
 	public final static String QUERY = "QUERY";
 	public final static String VALUE = "VALUE";
 	public final static String RESPONSE = "RESPONSE";
-	// location sensor special field
+	// sensor specific field
+	public final static String TYPE = "TYPE";
+	// location sensor specific field
 	public final static String USER = "USER";
 	
 	// component names
@@ -106,6 +108,10 @@ public class Message {
 	
 	// TODO: other constructors may be accepted too, expand as this being used
 	
+	public String getType() {
+		return this.notification.getString(TYPE);
+	}
+	
 	public String getTo() {
 		return this.notification.getString(TO);
 	}
@@ -154,6 +160,10 @@ public class Message {
 		this.notification.set(USER, user);
 	}
 	
+	public void setType(String type) {
+		this.notification.set(TYPE, type);
+	}
+	
 	/**
 	 * Determine whether a message is complete. 
 	 * From and To fields are mandatory, also one of the field of Query or Value is required. User must not be filled.
@@ -161,7 +171,7 @@ public class Message {
 	 * @return
 	 */
 	public boolean isComplete() {
-		if(this.getFrom() == SENSOR_NAME && this.getQuery() == TYPE_LOCATION) {
+		if(this.getFrom() == SENSOR_NAME && this.getType() == TYPE_LOCATION) {
 			return this.getTo() != null && this.getUser() != null && this.getValue() != null;
 		}
 		return this.getFrom() != null && this.getTo() != null && (this.getQuery() != null || this.getValue() != null) && this.getUser() == null;
@@ -199,5 +209,15 @@ public class Message {
 			}
 			this.clear();
 		}
+	}
+	
+	/**
+	 * this little helper function helps build a "key == 'value'" form for subscription
+	 * @param key
+	 * @param value
+	 * @return
+	 */
+	public static String criteriaBuilder(String key, String value) {
+		return key + " == '" + value + "'";
 	}
 }
