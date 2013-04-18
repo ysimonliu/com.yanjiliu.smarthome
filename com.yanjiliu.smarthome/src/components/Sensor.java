@@ -13,6 +13,9 @@ public class Sensor{
 	
 	// below is only for test data
 	public final static String TEMP_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\Temperature.txt";
+	public final static String USER1_LOCATION_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\User1Location.txt";
+	public final static String USER2_LOCATION_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\User2Location.txt";
+
 	// end of test data
 	private static String type, fileName, elvinURL;
 	private static Elvin elvin;
@@ -27,8 +30,8 @@ public class Sensor{
 			//type = args[0];
 			//fileName = args[1];
 			//elvinURL = args[2];
-			type = Message.TYPE_TEMPERATURE;
-			fileName = TEMP_TEST_NAME;
+			type = Message.TYPE_LOCATION;
+			fileName = USER1_LOCATION_TEST_NAME;
 			elvinURL = Message.DEFAULT_ELVIN_URL;
 		//} else {
 		//	System.exit(1);

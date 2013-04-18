@@ -153,7 +153,7 @@ public class SensorReadingProducer extends Thread {
 	 */
 	private String parseLocationUserName(String fileName) {
 		// we assume the file name is "<username1> Location.txt"
-		return fileName.substring(fileName.length() - 13, fileName.length()-1);
+		return fileName.substring(0, fileName.length()-12);
 	}
 	
 	/**

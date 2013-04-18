@@ -72,16 +72,6 @@ public class SensorTesting{
 		SensorTesting me = new SensorTesting(Message.DEFAULT_ELVIN_URL);
 		
 		message = new Message(Message.DEFAULT_ELVIN_URL);
-		
-		switchTempMode(Message.DEFAULT_ELVIN_URL, Message.NON_PERIODIC);
-		
-		try {
-			Thread.sleep(30000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		shutdownComponent(Message.SENSOR_NAME, Message.TYPE_TEMPERATURE);
 
 	} 
 }
