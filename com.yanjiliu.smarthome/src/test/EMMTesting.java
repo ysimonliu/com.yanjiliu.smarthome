@@ -1,5 +1,7 @@
 package test;
 
+import java.io.IOException;
+
 import org.avis.client.*;
 
 import pseudoRPC.Message;
@@ -11,22 +13,13 @@ public class EMMTesting {
 	private static String criteria, result;
 	private static Subscription response;
 	private static String elvinURL;
+	private static boolean RESPONSE_RECEIVED;
+	private static Object lock;
 	
 	public static String requestFromEMM(String query, String value) {
-		// send request message on the server
-		message.clear();
-		message.setFrom(Message.HOME_MANAGER_CLIENT_STUB);
-		message.setTo(Message.EMM_NAME);
-		message.setQuery(query);
-		message.setValue(value);
-		/*
-		// for testing purpose
-		System.out.println("From: " + message.getFrom());
-		System.out.println("To: " + message.getTo());
-		System.out.println("Query: " + message.getQuery());
-		System.out.println("Value: " + message.getValue());
-		*/
-		message.sendNotification();
+		
+		// initialize the result variable
+		RESPONSE_RECEIVED = false;
 		
 		// connect to the server
 		try {
@@ -35,31 +28,60 @@ public class EMMTesting {
 			e.printStackTrace();
 		}
 		
-		System.out.println("DEBUG: check point 3");
-		
-		// wait for response for the request. during this period, block calling
+		// set up listener for the response. during this period, block calling
 		criteria = Message.criteriaBuilder(Message.FROM, Message.EMM_NAME) + " && " +
-				Message.criteriaBuilder(Message.TO, Message.HOME_MANAGER_CLIENT_STUB) + " && " +
-				Message.criteriaBuilder(Message.QUERY, query) + " && " +
-				Message.criteriaBuilder(Message.VALUE, value);
-		
+			Message.criteriaBuilder(Message.TO, Message.HOME_MANAGER_CLIENT_STUB) + " && " +
+			Message.criteriaBuilder(Message.QUERY, query);
+		if (value != null) {
+			criteria = criteria + " && " +Message.criteriaBuilder(Message.VALUE, value);
+		}
+				
+		System.out.println("DEBUG: Checkpoint 1");System.out.println(criteria);
+				
 		try {
 			response = elvin.subscribe(criteria);
 			response.addListener(new NotificationListener() {
 				public void notificationReceived(NotificationEvent event) {
-					System.out.println("DEBUG: check point 4");
 					result = event.notification.getString(Message.RESPONSE);
+					System.out.println(result);
+					synchronized(lock) {
+						lock.notify();
+					}
+					// remove this subscription and close elvin connection
+					try {
+						response.remove();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 					elvin.close();
 				}
 			});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+				
+		// send request message on the server
+		message.clear();
+		message.setFrom(Message.HOME_MANAGER_CLIENT_STUB);
+		message.setTo(Message.EMM_NAME);
+		message.setQuery(query);
+		if (value != null) {
+			message.setValue(value);
+		}
+		message.sendNotification();
 		
-		// FIXME: Does it wait till it returns the result?
+		System.out.println("DEBUG: Checkpoint 2");
+		// block calls until result is returned
+		synchronized(lock) {
+			try {
+				lock.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		
+		System.out.println("DEBUG: Checkpoint 3");
 		// return the result
-		while(result == null) {};
 		return result;
 	}
 	

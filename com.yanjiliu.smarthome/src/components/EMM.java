@@ -11,7 +11,7 @@ import pseudoRPC.Message;
 
 public class EMM {
 
-	public static final String TEST_FILE_LOCATION = "C:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\EMMTest.txt";
+	public static final String TEST_FILE_LOCATION = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\EMMTest.txt";
 	private static FileReader fr;
 	private static BufferedReader br;
 	private static Elvin elvin;
@@ -29,8 +29,6 @@ public class EMM {
 			// read the instruction
 			query = event.notification.getString(Message.QUERY);
 			from = event.notification.getString(Message.FROM);
-			
-			System.out.println("DEBUG: check point 1");
 			
 			// and respond with the result
 			if(query.equals(Message.GET_TITLE)) {
@@ -52,19 +50,24 @@ public class EMM {
 			else if (query.equals(Message.SHUTDOWN)) {
 				EMM.exit();
 			}
-			
-			System.out.println("DEBUG: check point 2");
 		
 		}
 
 		// this method sends out response notifications
-		private void sendNotification(String to, String instruction, String value, String title) {
+		private void sendNotification(String to, String instruction, String value, String result) {
 			message.clear();
 			message.setFrom(Message.EMM_NAME);
 			message.setTo(to);
 			message.setQuery(instruction);
 			message.setValue(value);
-			message.setResponse(title);
+			message.setResponse(result);
+			
+			// DEBUG
+			/* System.out.println("From: " + message.getFrom());
+			System.out.println("To: " + message.getTo());
+			System.out.println("Query: " + message.getQuery());
+			System.out.println("Value: " + message.getValue());
+			System.out.println("Response: " + message.getResponse()); */
 			message.sendNotification();
 		}
 	};
@@ -100,7 +103,6 @@ public class EMM {
 		try{
 			elvin = new Elvin(elvinURL);
 			sub = elvin.subscribe(Message.criteriaBuilder(Message.TO, Message.EMM_NAME)); 
-			System.out.println(Message.criteriaBuilder(Message.TO, Message.EMM_NAME));
 			sub.addListener(emmlistener);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -18,6 +18,7 @@ public class HomeManagerPseudoRPCClientStub {
 	private String criteria;
 	private static String result;
 	private Subscription response;
+	private static boolean RESPONSE_RECEIVED;
 	
 	/**
 	 * Constructor - takes elvinURL to connect to the server, also to instantiate the message class
@@ -36,13 +37,9 @@ public class HomeManagerPseudoRPCClientStub {
 	 * @return
 	 */
 	public String requestFromEMM(String query, String value) {
-		// send request message on the server
-		message.clear();
-		message.setFrom(Message.HOME_MANAGER_CLIENT_STUB);
-		message.setTo(Message.EMM_NAME);
-		message.setQuery(query);
-		message.setValue(value);
-		message.sendNotification();
+		
+		// initialize the result variable
+		RESPONSE_RECEIVED = false;
 		
 		// connect to the server
 		try {
@@ -51,17 +48,20 @@ public class HomeManagerPseudoRPCClientStub {
 			e.printStackTrace();
 		}
 		
-		// wait for response for the request. during this period, block calling
+		// set up listener for the response. during this period, block calling
 		criteria = Message.criteriaBuilder(Message.FROM, Message.EMM_NAME) + " && " +
-				Message.criteriaBuilder(Message.TO, Message.HOME_MANAGER_CLIENT_STUB) + " && " +
-				Message.criteriaBuilder(Message.QUERY, query) + " && " +
-				Message.criteriaBuilder(Message.VALUE, value);
-		
+			Message.criteriaBuilder(Message.TO, Message.HOME_MANAGER_CLIENT_STUB) + " && " +
+			Message.criteriaBuilder(Message.QUERY, query);
+		if (value != null) {
+			criteria = criteria + " && " +Message.criteriaBuilder(Message.VALUE, value);
+		}
+				
 		try {
 			response = elvin.subscribe(criteria);
 			response.addListener(new NotificationListener() {
 				public void notificationReceived(NotificationEvent event) {
 					result = event.notification.getString(Message.RESPONSE);
+					RESPONSE_RECEIVED = true;
 					// remove this subscription and close elvin connection
 					try {
 						response.remove();
@@ -74,10 +74,20 @@ public class HomeManagerPseudoRPCClientStub {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+				
+		// send request message on the server
+		message.clear();
+		message.setFrom(Message.HOME_MANAGER_CLIENT_STUB);
+		message.setTo(Message.EMM_NAME);
+		message.setQuery(query);
+		if (value != null) {
+			message.setValue(value);
+		}
+		message.sendNotification();
 		
 		// block calls until result is returned
-		while(result == null);
-		
+		while(!RESPONSE_RECEIVED);
+
 		// return the result
 		return result;
 	}
