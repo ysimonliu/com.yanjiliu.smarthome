@@ -2,7 +2,8 @@ package components;
 
 import java.util.ArrayList;
 
-import PseudoRPC.Message;
+import pseudoRPC.Message;
+
 
 public class UsersLocation {
 	

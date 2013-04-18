@@ -7,7 +7,8 @@ import java.net.ConnectException;
 
 import org.avis.client.*;
 
-import PseudoRPC.Message;
+import pseudoRPC.Message;
+
 
 public class SmartHomeUI {
 	

@@ -1,6 +1,6 @@
 package components;
 
-import PseudoRPC.*;
+import pseudoRPC.*;
 
 public class HomeManager {
 	

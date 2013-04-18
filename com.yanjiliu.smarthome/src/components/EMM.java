@@ -5,7 +5,8 @@ import java.io.FileReader;
 
 import org.avis.client.*;
 
-import PseudoRPC.Message;
+import pseudoRPC.Message;
+
 
 public class EMM {
 

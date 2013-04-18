@@ -1,4 +1,4 @@
-package PseudoRPC;
+package pseudoRPC;
 
 import java.io.IOException;
 

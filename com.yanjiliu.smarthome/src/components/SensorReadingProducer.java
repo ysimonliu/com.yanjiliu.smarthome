@@ -2,7 +2,8 @@ package components;
 
 import org.avis.client.*;
 
-import PseudoRPC.Message;
+import pseudoRPC.Message;
+
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

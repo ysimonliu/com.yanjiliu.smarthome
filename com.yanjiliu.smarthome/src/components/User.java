@@ -1,6 +1,6 @@
 package components;
 
-import PseudoRPC.Message;
+import pseudoRPC.Message;
 
 public class User {
 
