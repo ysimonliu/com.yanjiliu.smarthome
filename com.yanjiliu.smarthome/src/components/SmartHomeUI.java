@@ -10,7 +10,6 @@ import org.avis.client.*;
 import pseudoRPC.Message;
 import pseudoRPC.SmartHomeUIClientPseudoRPC;
 
-
 public class SmartHomeUI {
 	
 	private static String elvinURL, input;

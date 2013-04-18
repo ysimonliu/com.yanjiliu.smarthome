@@ -66,7 +66,7 @@ public class HomeManager {
 	 */
 	private static void evaluateLocation() {
 		// only send notification when who's home is now different than last time
-		if (usersLocation.getPreviousStatus() != usersLocation.getStatus()) {
+		if (!usersLocation.getPreviousStatus().equals(usersLocation.getStatus())) {
 			switch(usersLocation.getStatus()) {
 			case Message.STATUS_AWAY: controller.switchTempMode(Message.NON_PERIODIC);
 				break;
@@ -80,7 +80,7 @@ public class HomeManager {
 	 * This method monitors the energy usage
 	 */
 	private static void monitorEnergy() {
-		if (Integer.parseInt(energy) > 4000 && energy != previousEnergy) {
+		if (Integer.parseInt(energy) > 4000 && !(energy.equals(previousEnergy))) {
 			controller.warnUI(energy);
 		}
 	}
