@@ -70,6 +70,7 @@ public class Message {
 	public static final String WARN = "warn";
 	
 	public final static String DEFAULT_ELVIN_URL = "elvin://0.0.0.0:2917";
+	//public final static String DEFAULT_REMOTE_ELVIN_URL = "elvin://elvin.students.itee.uq.edu.au";
 	private Notification notification;
 	private Elvin elvin;
 	

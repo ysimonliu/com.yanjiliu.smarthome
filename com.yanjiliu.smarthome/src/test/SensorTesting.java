@@ -44,10 +44,21 @@ public class SensorTesting{
     	e.printStackTrace();
 	}
 	}
+	
+	public static void switchTempMode(String elvinURL, String mode){
+		Message message = new Message(elvinURL);
+		message.clear();
+		message.setFrom(Message.HOME_MANAGER_CLIENT_STUB);
+		message.setTo(Message.SENSOR_NAME);
+		message.setQuery(mode);
+		message.sendNotification();
+	}
 
 	public static void main(String [] args){
 
-		SensorTesting me = new SensorTesting(args[0]);
+		SensorTesting me = new SensorTesting(Message.DEFAULT_ELVIN_URL);
+		
+		switchTempMode(Message.DEFAULT_ELVIN_URL, Message.NON_PERIODIC);
 
 	} 
 }
