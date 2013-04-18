@@ -158,4 +158,14 @@ public class HomeManager {
 		controller.exit();
 		System.exit(0);
 	}
+
+	public static String getMediaFiles() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static String getTracks(String value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

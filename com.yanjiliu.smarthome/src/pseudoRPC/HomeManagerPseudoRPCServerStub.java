@@ -1,5 +1,7 @@
 package pseudoRPC;
 
+import java.io.IOException;
+
 import org.avis.client.*;
 
 import components.HomeManager;
@@ -33,14 +35,29 @@ public class HomeManagerPseudoRPCServerStub {
 			type = event.notification.getString(Message.TYPE);
 			value = event.notification.getString(Message.VALUE);
 			switch(from){
-			case Message.SENSOR_NAME: updateSensorData(query, value, event.notification);
-			case Message.SMART_UI_NAME: processUIQuery(type, value);
+			case Message.SENSOR_NAME: updateSensorData(type, value, event.notification);
+			case Message.SMART_UI_NAME: processUIQuery(query, value);
 			}
 		}
 		
 		private void processUIQuery(String query, String value) {
-			// TODO Auto-generated method stub
+			// depends on the query, ask the home manager to process the request
+			switch(query) {
+			case (Message.VIEW_TEMPERATURE_LOG): response = HomeManager.getTempAdjustLog();
+				break;
+			case (Message.VIEW_MEDIA_FILES): response = HomeManager.getMediaFiles();
+				break;
+			case (Message.GET_TRACKS): response = HomeManager.getTracks(value);
+				break;
+			}
 			
+			// send the result back to the request component, here smartHomeUI is the requesting server for sure
+			message.clear();
+			message.setFrom(to);
+			message.setTo(from);
+			message.setQuery(query);
+			message.setValue(value);
+			message.sendNotification();
 		}
 		
 		/**
@@ -70,6 +87,12 @@ public class HomeManagerPseudoRPCServerStub {
 	 * exit the home manager RPC server stub
 	 */
 	public void exit() {
+		// remove subscription and close elvin connection
+		try {
+			sub.remove();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		elvin.close();
 	}
 }

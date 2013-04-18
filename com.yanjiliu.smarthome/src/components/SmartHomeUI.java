@@ -65,7 +65,7 @@ public class SmartHomeUI {
 			System.out.println("Welcome to the Smart Home Monitoring System");
 			System.out.println("Please enter your user name:");
 			System.out.flush();
-			input = stdin.readLine();
+			input = stdin.readLine().trim();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -83,7 +83,7 @@ public class SmartHomeUI {
 			System.out.println("E. Exit");		
 			System.out.flush();
 			
-			input = stdin.readLine();
+			input = stdin.readLine().trim();
 			
 			switch(input){
 			case "1": System.out.println("viewLog();");
@@ -112,23 +112,82 @@ public class SmartHomeUI {
 	 */
 	private static void exit() {
 		UIclient.shutdownHomeManager();
+		try {
+			subscription.remove();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		elvin.close();
 		UIclient.exit();
 		System.exit(0);
 	}
 
-	private static void viewDiscTracks(String fileName) {
-		UIclient.requestFromSmartHome(Message.GET_TRACKS, fileName);
-		// TODO: add "ENTER" to proceed
+	private static void viewDiscTracks() {
+		// ask and takes the input of the disc title
+		System.out.println("Please enter the disc title: ");
+		try {
+			input = stdin.readLine().trim();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println();
+		
+		// get the result and display the result
+		String result = UIclient.requestFromHomeManager(Message.GET_TRACKS, input);
+		if (result.isEmpty() || result == null) {
+			System.out.println("The disc '" + input + "' was not found in the media collection");
+		}
+		else {
+			System.out.println(result);
+		}
+		
+		// go to enter to return at the end
+		pressEnterToReturn();
 	}
 
 	private static void viewMediaFiles() {
-		UIclient.requestFromSmartHome(Message.VIEW_MEDIA_FILES, null);
+		System.out.println();
+		// request home manager
+		String result = UIclient.requestFromHomeManager(Message.VIEW_MEDIA_FILES, "");
+		
+		// display media file list depeneding on the result returned
+		if (result.isEmpty() || result == null) {
+			System.out.println("No media files were found");
+		} else {
+			System.out.println(result);
+		}
+		
+		// go to enter to return at the end
+		pressEnterToReturn();
 	}
 
 	private static void viewLog() {
-		UIclient.requestFromSmartHome(Message.VIEW_TEMPERATURE_LOG, null);
+		System.out.println();
+		// request for temperature log
+		String result = UIclient.requestFromHomeManager(Message.VIEW_TEMPERATURE_LOG, "");
+		
+		// display temperature log depending on the result returned
+		if (result.isEmpty() || result == null) {
+			System.out.println("Log of temperature adjustment is empty");
+		} else {
+			System.out.println(result);
+		}
+		
+		// go to enter to return at the end
+		pressEnterToReturn();
 	}
 	
+	private static void pressEnterToReturn() {
+		// takes anything and return to mainMenu
+		System.out.println();
+		try {
+			input = stdin.readLine().trim();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		// once something is returned, go back to main menu
+		mainMenu();
+	}
 	
 }

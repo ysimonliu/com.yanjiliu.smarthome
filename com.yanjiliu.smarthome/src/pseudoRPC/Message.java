@@ -203,6 +203,7 @@ public class Message {
 	public void sendNotification() {
 		if (this.isComplete()){
 			try {
+				System.out.println("DEBUG: message is sent");
 				elvin.send(this.notification);
 			} catch (IOException e) {
 				e.printStackTrace();

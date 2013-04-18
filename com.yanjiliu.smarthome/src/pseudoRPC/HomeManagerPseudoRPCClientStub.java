@@ -1,5 +1,7 @@
 package pseudoRPC;
 
+import java.io.IOException;
+
 import org.avis.client.*;
 
 /**
@@ -60,6 +62,12 @@ public class HomeManagerPseudoRPCClientStub {
 			response.addListener(new NotificationListener() {
 				public void notificationReceived(NotificationEvent event) {
 					result = event.notification.getString(Message.RESPONSE);
+					// remove this subscription and close elvin connection
+					try {
+						response.remove();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 					elvin.close();
 				}
 			});
@@ -67,7 +75,8 @@ public class HomeManagerPseudoRPCClientStub {
 			e.printStackTrace();
 		}
 		
-		// FIXME: Does it wait till it returns the result?
+		// block calls until result is returned
+		while(result == null);
 		
 		// return the result
 		return result;

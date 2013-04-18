@@ -18,6 +18,7 @@ public class Sensor{
 
 	// end of test data
 	private static String type, fileName, elvinURL;
+	private static Subscription sub;
 	private static Elvin elvin;
 	
 	/**
@@ -40,7 +41,7 @@ public class Sensor{
 		// subscribe to elvin instructions
     	try{
     		elvin = new Elvin(elvinURL);
-    		Subscription sub = elvin.subscribe(Message.criteriaBuilder(Message.TO, Message.SENSOR_NAME) + " && " + Message.criteriaBuilder(Message.TYPE, type));
+    		sub = elvin.subscribe(Message.criteriaBuilder(Message.TO, Message.SENSOR_NAME) + " && " + Message.criteriaBuilder(Message.TYPE, type));
     		sub.addListener(new NotificationListener(){
     			public void notificationReceived(NotificationEvent event){
     				// if told to shutdown, do it
@@ -49,6 +50,7 @@ public class Sensor{
 							srp.exitSensor();
 							srp.interrupt();
 							// close elvin and current program
+							sub.remove();
 							elvin.close();
 							System.exit(0);
 						} catch (IOException e) {
