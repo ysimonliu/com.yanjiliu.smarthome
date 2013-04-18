@@ -13,7 +13,7 @@ public class User {
 	}
 	
 	public void setStatus(String status){
-		if (status == Message.STATUS_AWAY || status == Message.STATUS_HOME) {
+		if (status.equals(Message.STATUS_AWAY) || status.equals(Message.STATUS_HOME)) {
 			this.status = status;
 		}
 	}

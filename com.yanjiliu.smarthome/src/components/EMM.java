@@ -28,19 +28,19 @@ public class EMM {
 			from = event.notification.getString(Message.FROM);
 			
 			// and respond with the result
-			if(instruction == Message.GET_TITLE) {
+			if(instruction.equals(Message.GET_TITLE)) {
 				sendNotification(from, instruction, 
 						(temp = event.notification.getString(Message.VALUE)), mfl.getTitle(temp));
 			}
-			else if (instruction == Message.GET_DISC) {
+			else if (instruction.equals(Message.GET_DISC)) {
 				sendNotification(from, instruction, 
 						(temp = event.notification.getString(Message.VALUE)), mfl.getDisc(temp));
 			}
-			else if (instruction == Message.GET_TRACKS) {
+			else if (instruction.equals(Message.GET_TRACKS)) {
 				sendNotification(from, instruction, 
 						(temp = event.notification.getString(Message.VALUE)), mfl.getTracksinString(temp));
 			}
-			else if (instruction == Message.GET_FILES) {
+			else if (instruction.equals(Message.GET_FILES)) {
 				sendNotification(from, instruction, 
 						event.notification.getString(Message.VALUE), mfl.getFilesinString());
 			}
@@ -102,7 +102,7 @@ public class EMM {
 		br = new BufferedReader(fr);
 		while((lineContent = br.readLine()) != null) {
 			// if empty line, skip to read the next line
-			if (lineContent == ""){
+			if (lineContent.isEmpty()){
 				lineContent = br.readLine();
 			}
 			

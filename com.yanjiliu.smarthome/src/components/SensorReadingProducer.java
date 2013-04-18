@@ -29,13 +29,13 @@ public class SensorReadingProducer extends Thread {
 	 */
 	public SensorReadingProducer(String type, String fileName, String elvinURL) {
 		this.type = type;
-		if (type == Message.TYPE_LOCATION) {
+		if (type.equals(Message.TYPE_LOCATION)) {
 			this.userName = parseLocationUserName(fileName);
 		}
 		this.fileName = fileName;
 		this.elvinURL = elvinURL;
 		period = 0;
-		if (type == Message.TYPE_TEMPERATURE) {
+		if (type.equals(Message.TYPE_TEMPERATURE)) {
 			tempMode = Message.PERIODIC;
 		}
 		this.EXIT = false;
@@ -50,7 +50,7 @@ public class SensorReadingProducer extends Thread {
 		message = new Message(elvinURL);
 		
 		// if it's location sensor. we need to send registration data to home manager to register the user
-		if (type == Message.TYPE_LOCATION) {
+		if (type.equals(Message.TYPE_LOCATION)) {
 			registerUser();
 		}
 		
@@ -87,7 +87,7 @@ public class SensorReadingProducer extends Thread {
 			// for the given period of time, keep sending notification to Elvin with the same value
 			while (period > 0 && !this.EXIT){
 				// depends on the type, put notifications on Elvin
-				if (type == Message.TYPE_TEMPERATURE && tempMode == Message.NON_PERIODIC) {
+				if (type.equals(Message.TYPE_TEMPERATURE) && tempMode.equals(Message.NON_PERIODIC)) {
 					sendNonPeriodicTempNot(type, value);
 				} else {
 					sendNotification(type, value);
@@ -133,7 +133,7 @@ public class SensorReadingProducer extends Thread {
 		message.setType(type);
 		message.setValue(value);
 		
-		if (type == Message.TYPE_LOCATION) {
+		if (type.equals(Message.TYPE_LOCATION)) {
 			message.setUser(userName);
 			// FIXME: this is for testing
 			//System.out.println("USER: " + message.getUser());
@@ -193,7 +193,7 @@ public class SensorReadingProducer extends Thread {
 	 */
 	public void exitSensor() throws IOException {
 		this.EXIT = true;
-		if (type == Message.TYPE_LOCATION){
+		if (type.equals(Message.TYPE_LOCATION)){
 			deregisterUser();
 		}
 		elvin.close();

@@ -50,14 +50,14 @@ public class HomeManagerPseudoRPCServerStub {
 		 * @param notification
 		 */
 		private void updateSensorData(String type, String data, Notification notification) {
-			if (type == Message.TYPE_TEMPERATURE) {
+			if (type.equals(Message.TYPE_TEMPERATURE)) {
 				HomeManager.setTemperature(data);
-			} else if (type == Message.TYPE_ENERGY){
+			} else if (type.equals(Message.TYPE_ENERGY)){
 				HomeManager.setEnergy(data);
-			} else if (type == Message.TYPE_LOCATION) {
-				if (value == Message.VALUE_REGISTRATION) {
+			} else if (type.equals(Message.TYPE_LOCATION)) {
+				if (value.equals(Message.VALUE_REGISTRATION)) {
 					usersLocation.addUser(notification.getString(Message.USER));
-				} else if (value == Message.VALUE_DEREGISTRATION) {
+				} else if (value.equals(Message.VALUE_DEREGISTRATION)) {
 					usersLocation.removeUser(notification.getString(Message.USER));
 				} else {
 					usersLocation.setStatus(notification.getString(Message.USER), data);

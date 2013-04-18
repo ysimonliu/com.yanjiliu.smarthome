@@ -91,11 +91,11 @@ public class HomeManager {
 	 * Because too much logic here, I keep a copy of currentTemp and currentLocation for use
 	 */
 	private static void controlTemperature(int currentTemp, String locationStatus, String[] whosHome) {
-		if (locationStatus == Message.STATUS_HOME) {
+		if (locationStatus.equals(Message.STATUS_HOME)) {
 			if (currentTemp != Message.HOME_TEMP) {
 				adjustTemp(currentTemp, whosHome);
 			}
-		} else if (locationStatus == Message.STATUS_AWAY) {
+		} else if (locationStatus.equals(Message.STATUS_AWAY)) {
 			if (currentTemp < Message.AWAY_MIN_TEMP || currentTemp > Message.AWAY_MAX_TEMP) {
 				adjustTemp(currentTemp, whosHome);
 			}

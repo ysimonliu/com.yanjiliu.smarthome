@@ -171,7 +171,7 @@ public class Message {
 	 * @return
 	 */
 	public boolean isComplete() {
-		if(this.getFrom() == SENSOR_NAME && this.getType() == TYPE_LOCATION) {
+		if(this.getFrom().equals(SENSOR_NAME) && this.getType().equals(TYPE_LOCATION)) {
 			return this.getTo() != null && this.getUser() != null && this.getValue() != null;
 		}
 		return this.getFrom() != null && this.getTo() != null && (this.getQuery() != null || this.getValue() != null) && this.getUser() == null;

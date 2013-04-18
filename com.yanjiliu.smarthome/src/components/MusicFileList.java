@@ -48,7 +48,7 @@ public class MusicFileList {
 		Iterator<MusicFile> iterator = musicFileList.iterator();
 		while (iterator.hasNext()) {
 			musicFile = iterator.next();
-			if(musicFile.getFileName() == fileName) {
+			if(musicFile.getFileName().equals(fileName)) {
 				return musicFile.getTitle();
 			}
 		}
@@ -64,7 +64,7 @@ public class MusicFileList {
 		Iterator<MusicFile> iterator = musicFileList.iterator();
 		while (iterator.hasNext()) {
 			musicFile = iterator.next();
-			if(musicFile.getFileName() == fileName) {
+			if(musicFile.getFileName().equals(fileName)) {
 				return musicFile.getDisc();
 			}
 		}
@@ -83,7 +83,7 @@ public class MusicFileList {
 		// iterate through the list and search by disc name, put (track, title) tuples into tree maps
 		while (iterator.hasNext()) {
 			musicFile = iterator.next();
-			if (musicFile.getDisc() == disc) {
+			if (musicFile.getDisc().equals(disc)) {
 				trackTitleTuple.put(musicFile.getTrack(), musicFile.getTitle());
 			}
 		}

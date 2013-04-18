@@ -23,7 +23,7 @@ public class SensorTesting{
 			//System.out.println("From: " + from);
 			//System.out.println("Type: " + type);
 			//System.out.println("Value: " + value);
-			if (type == Message.TYPE_LOCATION) {
+			if (type.equals(Message.TYPE_LOCATION)) {
 				user = event.notification.getString(Message.USER);
 				//System.out.println("User: " + user);
 			}

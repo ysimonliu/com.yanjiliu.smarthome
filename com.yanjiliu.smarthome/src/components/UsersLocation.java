@@ -36,9 +36,9 @@ public class UsersLocation {
 	 * @param status
 	 */
 	public void setStatus(String name, String status){
-		if (user1.getName() == name) {
+		if (user1.getName().equals(name)) {
 			user1.setStatus(status);
-		} else if (user2.getName() == name) {
+		} else if (user2.getName().equals(name)) {
 			user2.setStatus(status);
 		}
 	}
@@ -48,9 +48,9 @@ public class UsersLocation {
 	 * @param name
 	 */
 	public void removeUser(String name){
-		if (user1.getName() == name) {
+		if (user1.getName().equals(name)) {
 			user1 = null;
-		} else if (user2.getName() == name) {
+		} else if (user2.getName().equals(name)) {
 			user2 = null;
 		}
 	}
@@ -60,7 +60,7 @@ public class UsersLocation {
 	 * @return
 	 */
 	public String getStatus() {
-		if (user1.getStatus() == Message.STATUS_HOME || user2.getStatus() == Message.STATUS_HOME) {
+		if (user1.getStatus().equals(Message.STATUS_HOME) || user2.getStatus().equals(Message.STATUS_HOME)) {
 			status =  Message.STATUS_HOME;
 		} else {
 			status = Message.STATUS_AWAY;
@@ -79,10 +79,10 @@ public class UsersLocation {
 
 	public String[] getWhosHome() {
 		ArrayList<String> whosHome = new ArrayList<String>();
-		if (user1.getStatus() == Message.STATUS_HOME) {
+		if (user1.getStatus().equals(Message.STATUS_HOME)) {
 			whosHome.add(user1.getName());
 		}
-		if (user2.getStatus() == Message.STATUS_HOME) {
+		if (user2.getStatus().equals(Message.STATUS_HOME)) {
 			whosHome.add(user2.getName());
 		}
 		

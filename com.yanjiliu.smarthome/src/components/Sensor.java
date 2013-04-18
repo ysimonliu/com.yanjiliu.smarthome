@@ -44,10 +44,16 @@ public class Sensor{
     		Subscription sub = elvin.subscribe(Message.criteriaBuilder(Message.TO, Message.SENSOR_NAME) + " && " + Message.criteriaBuilder(Message.TYPE, type));
     		sub.addListener(new NotificationListener(){
     			public void notificationReceived(NotificationEvent event){
+    				/*System.out.println("DEBUG: checkpoint 1");
+    				System.out.println("From: " + event.notification.getString(Message.FROM));
+    				System.out.println("Type: " + event.notification.getString(Message.TYPE));
+    				System.out.println("Value: " + event.notification.getString(Message.VALUE)); */
+    				System.out.println(event.notification.getString(Message.TYPE).equals(Message.TYPE_TEMPERATURE));
     				// if told to shutdown, do it
-    				if(event.notification.get(Message.QUERY) == Message.SHUTDOWN) {
+    				if(event.notification.get(Message.QUERY).equals(Message.SHUTDOWN)) {
     					try {
 							srp.exitSensor();
+							srp.interrupt();
 							// close elvin and current program
 							elvin.close();
 							System.exit(0);
@@ -56,11 +62,12 @@ public class Sensor{
 						}
     				}
     				// if type is temperature, then listen for mode changing instructions
-    				else if (event.notification.getString(Message.TYPE) == Message.TYPE_TEMPERATURE){
-    					if(event.notification.get(Message.QUERY) == Message.PERIODIC) {
+    				else if (event.notification.getString(Message.TYPE).equals(Message.TYPE_TEMPERATURE)){
+    					System.out.println("DEBUG: checkpoint 1");
+    					if(event.notification.get(Message.QUERY).equals(Message.PERIODIC)) {
     						srp.setTemperatureMode(Message.PERIODIC);
     					}
-    					else if (event.notification.get(Message.QUERY) == Message.NON_PERIODIC) {
+    					else if (event.notification.get(Message.QUERY).equals(Message.NON_PERIODIC)) {
     	    				System.out.println("DEBUG: checkpoint 2");
     						srp.setTemperatureMode(Message.NON_PERIODIC);
     					}
