@@ -9,7 +9,7 @@ public class HomeManagerPseudoRPCServerStub {
 
 	private Elvin elvin;
 	private Subscription sub;
-	private static String from, to, query, value, response;
+	private static String from, to, type, query, value, response;
 	private static Message message;
 	private static UsersLocation usersLocation;
 	
@@ -17,7 +17,7 @@ public class HomeManagerPseudoRPCServerStub {
 		message = new Message(elvinURL);
 		try {
 			elvin = new Elvin(elvinURL);
-			sub = elvin.subscribe(Message.TO + " == " + Message.HOME_MANAGER_SERVER_STUB);
+			sub = elvin.subscribe(Message.criteriaBuilder(Message.TO, Message.HOME_MANAGER_SERVER_STUB));
 			sub.addListener(HomeManagerServerStubListener);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -30,10 +30,11 @@ public class HomeManagerPseudoRPCServerStub {
 		public void notificationReceived(NotificationEvent event){
 			from = event.notification.getString(Message.FROM);
 			query = event.notification.getString(Message.QUERY);
+			type = event.notification.getString(Message.TYPE);
 			value = event.notification.getString(Message.VALUE);
 			switch(from){
 			case Message.SENSOR_NAME: updateSensorData(query, value, event.notification);
-			case Message.SMART_UI_NAME: processUIQuery(query, value);
+			case Message.SMART_UI_NAME: processUIQuery(type, value);
 			}
 		}
 		

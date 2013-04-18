@@ -31,10 +31,10 @@ public class SmartHomeUIClientPseudoRPC {
 		}
 		
 		// wait for response for the request. during this period, block calling
-		criteria = Message.FROM + " == " + Message.HOME_MANAGER_SERVER_STUB + " && " +
-				Message.TO + " == " + Message.SMART_UI_NAME + " && " +
-				Message.QUERY + " == " + query + " && " +
-				Message.VALUE + " == " + value;
+		criteria = Message.criteriaBuilder(Message.FROM, Message.HOME_MANAGER_SERVER_STUB) + " && " +
+				Message.criteriaBuilder(Message.TO, Message.SMART_UI_NAME) + " && " +
+				Message.criteriaBuilder(Message.QUERY, query) + " && " +
+				Message.criteriaBuilder(Message.VALUE, value);
 		
 		try {
 			response = elvin.subscribe(criteria);

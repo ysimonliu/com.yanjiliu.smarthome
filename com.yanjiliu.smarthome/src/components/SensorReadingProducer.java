@@ -14,7 +14,7 @@ public class SensorReadingProducer extends Thread {
 	
 	private static FileReader fr;
 	private static BufferedReader br;
-	private String type, fileName, elvinURL, lineContent, value, userName, mode;
+	private String type, fileName, elvinURL, lineContent, value, userName, tempMode;
 	private static int period, numValue, preValue;
 	private String[] values;
 	private Elvin elvin;
@@ -35,7 +35,9 @@ public class SensorReadingProducer extends Thread {
 		this.fileName = fileName;
 		this.elvinURL = elvinURL;
 		period = 0;
-		mode = Message.PERIODIC;
+		if (type == Message.TYPE_TEMPERATURE) {
+			tempMode = Message.PERIODIC;
+		}
 		this.EXIT = false;
 		preValue = 0;
 		numValue = 0;
@@ -85,7 +87,7 @@ public class SensorReadingProducer extends Thread {
 			// for the given period of time, keep sending notification to Elvin with the same value
 			while (period > 0 && !this.EXIT){
 				// depends on the type, put notifications on Elvin
-				if (type == Message.TYPE_TEMPERATURE && mode == Message.NON_PERIODIC) {
+				if (type == Message.TYPE_TEMPERATURE && tempMode == Message.NON_PERIODIC) {
 					sendNonPeriodicTempNot(type, value);
 				} else {
 					sendNotification(type, value);
@@ -143,9 +145,9 @@ public class SensorReadingProducer extends Thread {
 	 * This method changes the mode of notification of temperature sensor readings
 	 * @param mode
 	 */
-	public void changeTemperatureMode(String mode) {
+	public void setTemperatureMode(String tempMode) {
 		System.out.println("YES! I'm in changeTemperatureMode");
-		this.mode = mode;
+		this.tempMode = tempMode;
 	}
 
 	/**

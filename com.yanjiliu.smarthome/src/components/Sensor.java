@@ -56,13 +56,13 @@ public class Sensor{
 						}
     				}
     				// if type is temperature, then listen for mode changing instructions
-    				else if (type == Message.TYPE_TEMPERATURE){
+    				else if (event.notification.getString(Message.TYPE) == Message.TYPE_TEMPERATURE){
     					if(event.notification.get(Message.QUERY) == Message.PERIODIC) {
-    						srp.changeTemperatureMode(Message.PERIODIC);
+    						srp.setTemperatureMode(Message.PERIODIC);
     					}
     					else if (event.notification.get(Message.QUERY) == Message.NON_PERIODIC) {
     	    				System.out.println("DEBUG: checkpoint 2");
-    						srp.changeTemperatureMode(Message.NON_PERIODIC);
+    						srp.setTemperatureMode(Message.NON_PERIODIC);
     					}
     				}
                }

@@ -50,10 +50,10 @@ public class HomeManagerPseudoRPCClientStub {
 		}
 		
 		// wait for response for the request. during this period, block calling
-		criteria = Message.FROM + " == " + Message.EMM_NAME + " && " +
-				Message.TO + " == " + Message.HOME_MANAGER_CLIENT_STUB + " && " +
-				Message.QUERY + " == " + query + " && " +
-				Message.VALUE + " == " + value;
+		criteria = Message.criteriaBuilder(Message.FROM, Message.EMM_NAME) + " && " +
+				Message.criteriaBuilder(Message.TO, Message.HOME_MANAGER_CLIENT_STUB) + " && " +
+				Message.criteriaBuilder(Message.QUERY, query) + " && " +
+				Message.criteriaBuilder(Message.VALUE, value);
 		
 		try {
 			response = elvin.subscribe(criteria);
@@ -66,6 +66,8 @@ public class HomeManagerPseudoRPCClientStub {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		// FIXME: Does it wait till it returns the result?
 		
 		// return the result
 		return result;
@@ -93,6 +95,20 @@ public class HomeManagerPseudoRPCClientStub {
 		message.clear();
 		message.setFrom(Message.HOME_MANAGER_CLIENT_STUB);
 		message.setTo(componentToShutDown);
+		message.setQuery(Message.SHUTDOWN);
+		message.sendNotification();
+	}
+	
+	/**
+	 * This method sends out a notification to shut off a sensor
+	 * @param to - destination component
+	 * @return 
+	 */
+	public void shutdownComponent(String componentToShutDown, String sensorType) {
+		message.clear();
+		message.setFrom(Message.HOME_MANAGER_CLIENT_STUB);
+		message.setTo(componentToShutDown);
+		message.setType(sensorType);
 		message.setQuery(Message.SHUTDOWN);
 		message.sendNotification();
 	}
