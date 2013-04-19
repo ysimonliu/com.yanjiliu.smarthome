@@ -63,11 +63,11 @@ public class EMM {
 			message.setResponse(result);
 			
 			// DEBUG
-			/* System.out.println("From: " + message.getFrom());
+			System.out.println("From: " + message.getFrom());
 			System.out.println("To: " + message.getTo());
 			System.out.println("Query: " + message.getQuery());
 			System.out.println("Value: " + message.getValue());
-			System.out.println("Response: " + message.getResponse()); */
+			System.out.println("Response: " + message.getResponse());
 			message.sendNotification();
 		}
 	};

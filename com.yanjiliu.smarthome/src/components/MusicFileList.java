@@ -53,7 +53,8 @@ public class MusicFileList {
 				return musicFile.getTitle();
 			}
 		}
-		return null;
+		// if there is no title found, then return empty string
+		return "";
 	}
 	
 	/**
@@ -69,7 +70,8 @@ public class MusicFileList {
 				return musicFile.getDisc();
 			}
 		}
-		return null;
+		// if there is no disc found, then return empty string
+		return "";
 	}
 	
 	/**
@@ -98,7 +100,11 @@ public class MusicFileList {
 			result.append("\n");
 		}
 		
-		return result.toString();
+		if (result.toString().isEmpty()){
+			return "The disc ‘" + disc + "’ was not found in the media collection";
+		} else {
+			return result.toString();
+		}
 	}
 	
 	/**
@@ -137,6 +143,12 @@ public class MusicFileList {
 			result.append(" \n");
 		}
 		
-		return result.toString();
+		// if no media files, then return "No media files were found"
+		if (result.toString().isEmpty()) {
+			return "No media files were found";
+		} else {
+			return result.toString();
+		}
+		
 	}
 }

@@ -14,7 +14,7 @@ public class EMMTesting {
 	private static Subscription response;
 	private static String elvinURL;
 	private static boolean RESPONSE_RECEIVED;
-	private static Object lock;
+	private static Object lock = new Object();
 	
 	public static String requestFromEMM(String query, String value) {
 		
@@ -36,14 +36,13 @@ public class EMMTesting {
 			criteria = criteria + " && " +Message.criteriaBuilder(Message.VALUE, value);
 		}
 				
-		System.out.println("DEBUG: Checkpoint 1");System.out.println(criteria);
+		//FIXME:System.out.println("DEBUG: Checkpoint 1");
 				
 		try {
 			response = elvin.subscribe(criteria);
 			response.addListener(new NotificationListener() {
 				public void notificationReceived(NotificationEvent event) {
 					result = event.notification.getString(Message.RESPONSE);
-					System.out.println(result);
 					synchronized(lock) {
 						lock.notify();
 					}
@@ -70,7 +69,7 @@ public class EMMTesting {
 		}
 		message.sendNotification();
 		
-		System.out.println("DEBUG: Checkpoint 2");
+		//FIXME:System.out.println("DEBUG: Checkpoint 2");
 		// block calls until result is returned
 		synchronized(lock) {
 			try {
@@ -80,7 +79,7 @@ public class EMMTesting {
 			}
 		}
 		
-		System.out.println("DEBUG: Checkpoint 3");
+		//FIXME:System.out.println("DEBUG: Checkpoint 3");
 		// return the result
 		return result;
 	}
@@ -88,9 +87,9 @@ public class EMMTesting {
 	public static void main(String[] args) {
 		elvinURL = Message.DEFAULT_ELVIN_URL;
 		message = new Message(Message.DEFAULT_ELVIN_URL);
-		System.out.println(requestFromEMM(Message.GET_TITLE, "track2.mp3"));
-		System.out.println(requestFromEMM(Message.GET_DISC, "Let It Be"));
-		System.out.println(requestFromEMM(Message.GET_TRACKS, "Let It Be"));
-		System.out.println(requestFromEMM(Message.GET_FILES, ""));
+		System.out.println("A: " + requestFromEMM(Message.GET_TITLE, "track3.mp3"));
+		System.out.println("B: " + requestFromEMM(Message.GET_DISC, "track.mp3"));
+		System.out.println("C: " + requestFromEMM(Message.GET_TRACKS, "Let It Be"));
+		System.out.println("D: " + requestFromEMM(Message.GET_FILES, ""));
 	}
 }
