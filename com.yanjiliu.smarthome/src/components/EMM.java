@@ -120,33 +120,40 @@ public class EMM {
 		fr = new FileReader(dataFileName);
 		br = new BufferedReader(fr);
 		while((lineContent = br.readLine()) != null) {
-			// if empty line, skip to read the next line
-			if (lineContent.isEmpty()){
+			
+			// skip all possible empty lines
+			while (lineContent.isEmpty()){
 				lineContent = br.readLine();
+				// if reached the end of file, break out of loop
+				if (lineContent == null) break;
 			}
 			
-			// first line is fileName
-			values = lineContent.split(":");
-			fileName = values[1].trim();
-			lineContent = br.readLine();
+			// if haven't reached the end of file, perform the following parsing
+			if (lineContent!=null) {
+				// first line is fileName
+				values = lineContent.split(":");
+				fileName = values[1].trim();
+				lineContent = br.readLine();
 			
-			// second line is title
-			values = lineContent.split(":");
-			title = values[1].trim();
-			lineContent = br.readLine();
+				// second line is title
+				values = lineContent.split(":");
+				title = values[1].trim();
+				lineContent = br.readLine();
 			
-			// third line is disc
-			values = lineContent.split(":");
-			disc = values[1].trim();
-			lineContent = br.readLine();
+				// third line is disc
+				values = lineContent.split(":");
+				disc = values[1].trim();
+				lineContent = br.readLine();
 			
-			// fourth line is track
-			values = lineContent.split(":");
-			track = values[1].trim();
-			lineContent = br.readLine();
+				// fourth line is track
+				values = lineContent.split(":");
+				track = values[1].trim();
+				lineContent = br.readLine();
 			
-			// add this record to music file list
-			mfl.addFile(fileName, title, disc, track);
+				// add this record to music file list
+				mfl.addFile(fileName, title, disc, track);
+			}
+
 		}
 	}
 	

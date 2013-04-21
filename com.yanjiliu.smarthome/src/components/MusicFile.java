@@ -24,7 +24,7 @@ public class MusicFile {
 		this.fileName = fileName;
 		this.title = title;
 		this.disc = disc;
-		this.track = Integer.parseInt(track);
+		this.track = Integer.parseInt(track.trim());
 	}
 	
 	public void setTitle(String title) {

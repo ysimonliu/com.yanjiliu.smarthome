@@ -41,6 +41,14 @@ public class MusicFileList {
 	}
 	
 	/**
+	 * This method returns true if there is no music file added, false otherwise
+	 * @return
+	 */
+	public boolean isEmpty() {
+		return this.musicFileList.isEmpty();
+	}
+	
+	/**
 	 * Return the title given the fileName of a music file in the list
 	 * @param fileName
 	 * @return
@@ -80,6 +88,10 @@ public class MusicFileList {
 	 * @return
 	 */
 	public String getTracks(String disc){
+		// if no media files, then return "The disc ‘" + disc + "’ was not found in the media collection"
+		if (this.isEmpty()) {
+			return "The disc ‘" + disc + "’ was not found in the media collection";
+		}
 		// I use tree map to store a tuple (track number, title name). Treemap is hashmaps but sorted by its keys
 		TreeMap<Integer, String> trackTitleTuple = new TreeMap<Integer, String>();
 		Iterator<MusicFile> iterator = musicFileList.iterator();
@@ -100,11 +112,7 @@ public class MusicFileList {
 			result.append("\n");
 		}
 		
-		if (result.toString().isEmpty()){
-			return "The disc ‘" + disc + "’ was not found in the media collection";
-		} else {
-			return result.toString();
-		}
+		return result.toString();
 	}
 	
 	/**
@@ -113,6 +121,10 @@ public class MusicFileList {
 	 * @return
 	 */
 	public String getFiles() {
+		// if no media files, then return "No media files were found"
+		if (this.isEmpty()) {
+			return "No media files were found";
+		}
 		// use array list, because size of array is unknown
 		ArrayList<String> listFiles = new ArrayList<String>();
 		
@@ -142,13 +154,8 @@ public class MusicFileList {
 			result.append(getDisc(f));
 			result.append(" \n");
 		}
-		
-		// if no media files, then return "No media files were found"
-		if (result.toString().isEmpty()) {
-			return "No media files were found";
-		} else {
-			return result.toString();
-		}
+
+		return result.toString();
 		
 	}
 }
