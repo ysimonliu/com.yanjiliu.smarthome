@@ -1,8 +1,7 @@
-package components;
+package pseudoRPC;
 
 import org.avis.client.*;
 
-import pseudoRPC.Message;
 
 
 import java.io.BufferedReader;
@@ -10,15 +9,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class SensorReadingProducer extends Thread {
+public class SensorPseudoRPCClientStub extends Thread {
 	
-	private static FileReader fr;
-	private static BufferedReader br;
-	private String type, fileName, elvinURL, lineContent, value, userName, tempMode;
-	private static int period, numValue, preValue;
-	private String[] values;
-	private volatile boolean EXIT;
-	private static Message message;
+
 
 	/**
 	 * Constructor
@@ -26,7 +19,7 @@ public class SensorReadingProducer extends Thread {
 	 * @param fileName
 	 * @param elvinURL
 	 */
-	public SensorReadingProducer(String type, String fileName, String elvinURL) {
+	public SensorPseudoRPCClientStub(String elvinURL) {
 		this.type = type;
 		if (type.equals(Message.TYPE_LOCATION)) {
 			this.userName = parseLocationUserName(fileName);
@@ -41,76 +34,13 @@ public class SensorReadingProducer extends Thread {
 		preValue = 0;
 		numValue = 0;
 	}
-
-	/**
-	 * run method for this thread
-	 */
-	public void run(){
-		message = new Message(elvinURL);
-		
-		// if it's location sensor. we need to send registration data to home manager to register the user
-		if (type.equals(Message.TYPE_LOCATION)) {
-			registerUser();
-		}
-		
-		// read data from given file
-		try {
-			fr = new FileReader(fileName);
-			br = new BufferedReader(fr);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		
-		
-		// parse the file regardless of the type
-		while(!this.EXIT) {
-			
-			// reads the next line. If reached the end of file, start over on the same file
-			try {
-				if((lineContent = br.readLine()) == null) {
-					fr.close();
-					fr = new FileReader(fileName);
-					lineContent = br.readLine();
-				}
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
-			// parse the line. from format, first is value, second field is timeTicker
-			values = lineContent.split(",");
-			value = values[0];
-			period = Integer.parseInt(values[1]);
-			
-			// for the given period of time, keep sending notification to Elvin with the same value
-			while (period > 0 && !this.EXIT){
-				// depends on the type, put notifications on Elvin
-				if (type.equals(Message.TYPE_TEMPERATURE) && tempMode.equals(Message.NON_PERIODIC)) {
-					sendNonPeriodicTempNot(type, value);
-				} else {
-					sendNotification(type, value);
-				}
-				
-				// We only need to pipe data every second
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				// decrement period
-				period--;
-			}
-		}
-		
-	}
-
+	
 	/**
 	 * This method determines what values to put on Elvin when it's a temperature sensor in Non Periodic mode
 	 * @param type
 	 * @param value
 	 */
-	private void sendNonPeriodicTempNot(String type, String value) {
+	public void sendNonPeriodicTempNot(String type, String value) {
 		numValue = Integer.parseInt(value);
 		if ((numValue > Message.AWAY_MAX_TEMP || numValue < Message.AWAY_MIN_TEMP) && (numValue != preValue)) {
 			sendNotification(type, value);
@@ -123,7 +53,7 @@ public class SensorReadingProducer extends Thread {
 	 * @param type
 	 * @param value
 	 */
-	private void sendNotification(String type, String value) {
+	public void sendNotification(String type, String value) {
 		message.clear();
 		message.setFrom(Message.SENSOR_NAME);
 		message.setTo(Message.HOME_MANAGER_SERVER_STUB);
@@ -160,7 +90,7 @@ public class SensorReadingProducer extends Thread {
 	 * This method will send a notification to the home manager server stub to register user
 	 * this is only called once when a location sensor data file is loaded
 	 */
-	private void registerUser() {
+	public void registerUser() {
 		message.clear();
 		message.setFrom(Message.SENSOR_NAME);
 		message.setTo(Message.HOME_MANAGER_SERVER_STUB);
