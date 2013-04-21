@@ -3,7 +3,6 @@ package components;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.ConnectException;
 
 import org.avis.client.*;
 
@@ -52,25 +51,31 @@ public class SmartHomeUI {
 			e.printStackTrace();
 		}
 		
-		// instantiate the clientr stub
+		// instantiate the clientr stub and stdin
 		UIclient = new SmartHomeUIClientPseudoRPC(elvinURL);
+		stdin = new BufferedReader(new InputStreamReader(System.in)); 
 		
 		// load menu
 		welcomeMessage();
 		mainMenu();
 	}
 	
+	/**
+	 * This method displays the one time welcome message
+	 */
 	private static void welcomeMessage() {
+		System.out.println("Welcome to the Smart Home Monitoring System");
+		System.out.println("Please enter your user name:");
 		try {
-			System.out.println("Welcome to the Smart Home Monitoring System");
-			System.out.println("Please enter your user name:");
-			System.out.flush();
-			input = stdin.readLine().trim();
+			input = stdin.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
+	/**
+	 * This message loads the main menu
+	 */
 	private static void mainMenu() {
 		stdin = new BufferedReader (new InputStreamReader(System.in));
 		
@@ -88,13 +93,17 @@ public class SmartHomeUI {
 			switch(input){
 			case "1": System.out.println("viewLog();");
 				break;
-			case "2": System.out.println("viewMediaFiles();");
+			case "2": viewMediaFiles();
 				break;
-			case "3": System.out.println("viewDiscTracks();");
+			case "3": viewDiscTracks();
 				break;
 			case "E": exit();
 				break;
+			// I'll be case insensitive here and take "e" as an legal input
+			case "e": exit();
+				break;
 			default: System.out.println("Invalid command");
+				System.out.println(1 );
 				break;
 			}
 
@@ -122,6 +131,9 @@ public class SmartHomeUI {
 		System.exit(0);
 	}
 
+	/**
+	 * This method will execute the UI part of the view disc tracks command
+	 */
 	private static void viewDiscTracks() {
 		// ask and takes the input of the disc title
 		System.out.println("Please enter the disc title: ");
@@ -132,51 +144,41 @@ public class SmartHomeUI {
 		}
 		System.out.println();
 		
-		// get the result and display the result
-		String result = UIclient.requestFromHomeManager(Message.GET_TRACKS, input);
-		if (result.isEmpty() || result == null) {
-			System.out.println("The disc '" + input + "' was not found in the media collection");
-		}
-		else {
-			System.out.println(result);
-		}
+		// get the result and display the result, the case of no tracks matched are already taken care of at lower levels of code
+		System.out.println(UIclient.requestFromHomeManager(Message.GET_TRACKS, input));
 		
 		// go to enter to return at the end
 		pressEnterToReturn();
 	}
 
+	/**
+	 * This method executes the UI part of the view media files command
+	 */
 	private static void viewMediaFiles() {
 		System.out.println();
-		// request home manager
-		String result = UIclient.requestFromHomeManager(Message.VIEW_MEDIA_FILES, "");
-		
-		// display media file list depeneding on the result returned
-		if (result.isEmpty() || result == null) {
-			System.out.println("No media files were found");
-		} else {
-			System.out.println(result);
-		}
+		// print out the result. the case of no files found are already taken care of at lower levels of code
+		System.out.println(UIclient.requestFromHomeManager(Message.VIEW_MEDIA_FILES, Message.VIEW_MEDIA_FILES));
 		
 		// go to enter to return at the end
 		pressEnterToReturn();
 	}
 
+	/**
+	 * This method executes the UI part of the view temperature log command
+	 */
 	private static void viewLog() {
 		System.out.println();
-		// request for temperature log
-		String result = UIclient.requestFromHomeManager(Message.VIEW_TEMPERATURE_LOG, "");
 		
-		// display temperature log depending on the result returned
-		if (result.isEmpty() || result == null) {
-			System.out.println("Log of temperature adjustment is empty");
-		} else {
-			System.out.println(result);
-		}
+		// display temperature log. the case of empty logs are already taken care of at lower levels of code
+		System.out.println(UIclient.requestFromHomeManager(Message.VIEW_TEMPERATURE_LOG, Message.VIEW_TEMPERATURE_LOG));
 		
 		// go to enter to return at the end
 		pressEnterToReturn();
 	}
 	
+	/**
+	 * This method is to perform the "ENTER" to return after each function is executed
+	 */
 	private static void pressEnterToReturn() {
 		// takes anything and return to mainMenu
 		System.out.println();

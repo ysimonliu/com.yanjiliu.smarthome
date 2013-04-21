@@ -29,12 +29,7 @@ public class SmartHomeUIClientPseudoRPC {
 		// set up listener for the response. during this period, block calling
 		criteria = Message.criteriaBuilder(Message.FROM, Message.HOME_MANAGER_SERVER_STUB) + " && " +
 				Message.criteriaBuilder(Message.TO, Message.SMART_UI_NAME) + " && " +
-				Message.criteriaBuilder(Message.QUERY, query);
-
-		// when requiring temp logs and list of media files, value is not needed
-		if (!value.isEmpty()) {
-			criteria += " && " + Message.criteriaBuilder(Message.VALUE, value);
-		}
+				Message.criteriaBuilder(Message.QUERY, query) + " && " + Message.criteriaBuilder(Message.VALUE, value);
 		
 		try {
 			response = elvin.subscribe(criteria);
@@ -61,10 +56,7 @@ public class SmartHomeUIClientPseudoRPC {
 		message.setFrom(Message.SMART_UI_NAME);
 		message.setTo(Message.HOME_MANAGER_SERVER_STUB);
 		message.setQuery(query);
-		// when requiring temp logs and list of media files, value is not needed
-		if (!value.isEmpty()){
-			message.setValue(value);
-		}
+		message.setValue(value);
 		message.sendNotification();
 		
 		// block calls until result is returned

@@ -47,11 +47,7 @@ public class HomeManagerPseudoRPCClientStub {
 		// set up listener for the response. during this period, block calling
 		criteria = Message.criteriaBuilder(Message.FROM, Message.EMM_NAME) + " && " +
 			Message.criteriaBuilder(Message.TO, Message.HOME_MANAGER_CLIENT_STUB) + " && " +
-			Message.criteriaBuilder(Message.QUERY, query);
-		// if value is provided then 
-		if (!value.isEmpty()) {
-			criteria = criteria + " && " + Message.criteriaBuilder(Message.VALUE, value);
-		}
+			Message.criteriaBuilder(Message.QUERY, query) + " && " + Message.criteriaBuilder(Message.VALUE, value);
 				
 		try {
 			response = elvin.subscribe(criteria);
@@ -79,9 +75,7 @@ public class HomeManagerPseudoRPCClientStub {
 		message.setFrom(Message.HOME_MANAGER_CLIENT_STUB);
 		message.setTo(Message.EMM_NAME);
 		message.setQuery(query);
-		if (!value.isEmpty()) {
-			message.setValue(value);
-		}
+		message.setValue(value);
 		message.sendNotification();
 
 		// block calls until result is returned

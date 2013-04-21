@@ -36,11 +36,11 @@ public class HomeManagerPseudoRPCServerStub {
 			value = event.notification.getString(Message.VALUE);
 			switch(from){
 			case Message.SENSOR_NAME: updateSensorData(type, value, event.notification);
-			case Message.SMART_UI_NAME: processUIQuery(query, value);
+			case Message.SMART_UI_NAME: processUIQuery(from, query, value);
 			}
 		}
 		
-		private void processUIQuery(String query, String value) {
+		private void processUIQuery(String to, String query, String value) {
 			// initialize response String
 			response = "";
 			// depends on the query, ask the home manager to process the request
@@ -57,8 +57,8 @@ public class HomeManagerPseudoRPCServerStub {
 			
 			// send the result back to the request component, here smartHomeUI is the requesting server for sure
 			message.clear();
-			message.setFrom(to);
-			message.setTo(from);
+			message.setFrom(Message.HOME_MANAGER_SERVER_STUB);
+			message.setTo(to);
 			message.setQuery(query);
 			message.setValue(value);
 			message.setResponse(response);

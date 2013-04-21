@@ -88,10 +88,6 @@ public class MusicFileList {
 	 * @return
 	 */
 	public String getTracks(String disc){
-		// if no media files, then return "The disc ‘" + disc + "’ was not found in the media collection"
-		if (this.isEmpty()) {
-			return "The disc ‘" + disc + "’ was not found in the media collection";
-		}
 		// I use tree map to store a tuple (track number, title name). Treemap is hashmaps but sorted by its keys
 		TreeMap<Integer, String> trackTitleTuple = new TreeMap<Integer, String>();
 		Iterator<MusicFile> iterator = musicFileList.iterator();
@@ -102,6 +98,11 @@ public class MusicFileList {
 			if (musicFile.getDisc().equals(disc)) {
 				trackTitleTuple.put(musicFile.getTrack(), musicFile.getTitle());
 			}
+		}
+		
+		// if no track has found for match disc, then return "The disc ‘" + disc + "’ was not found in the media collection"
+		if (trackTitleTuple.isEmpty()) {
+			return "The disc ‘" + disc + "’ was not found in the media collection";
 		}
 		
 		// return the values of tree maps in the ascending order of keys, which is the track number
