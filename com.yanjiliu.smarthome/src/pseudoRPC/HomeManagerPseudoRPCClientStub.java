@@ -7,7 +7,6 @@ import org.avis.client.*;
 /**
  * This is the client stub for Home Manager Pseudo RPC
  * the client stub is responsible for sending out messages.
- * @author Yanji Liu
  *
  */
 public class HomeManagerPseudoRPCClientStub {
@@ -18,7 +17,7 @@ public class HomeManagerPseudoRPCClientStub {
 	private String criteria;
 	private static String result;
 	private Subscription response;
-	private static boolean RESPONSE_RECEIVED;
+	private static Object lock = new Object();
 	
 	/**
 	 * Constructor - takes elvinURL to connect to the server, also to instantiate the message class
@@ -38,9 +37,6 @@ public class HomeManagerPseudoRPCClientStub {
 	 */
 	public String requestFromEMM(String query, String value) {
 		
-		// initialize the result variable
-		RESPONSE_RECEIVED = false;
-		
 		// connect to the server
 		try {
 			elvin = new Elvin(elvinURL);
@@ -52,8 +48,9 @@ public class HomeManagerPseudoRPCClientStub {
 		criteria = Message.criteriaBuilder(Message.FROM, Message.EMM_NAME) + " && " +
 			Message.criteriaBuilder(Message.TO, Message.HOME_MANAGER_CLIENT_STUB) + " && " +
 			Message.criteriaBuilder(Message.QUERY, query);
-		if (value != null) {
-			criteria = criteria + " && " +Message.criteriaBuilder(Message.VALUE, value);
+		// if value is provided then 
+		if (!value.isEmpty()) {
+			criteria = criteria + " && " + Message.criteriaBuilder(Message.VALUE, value);
 		}
 				
 		try {
@@ -61,7 +58,9 @@ public class HomeManagerPseudoRPCClientStub {
 			response.addListener(new NotificationListener() {
 				public void notificationReceived(NotificationEvent event) {
 					result = event.notification.getString(Message.RESPONSE);
-					RESPONSE_RECEIVED = true;
+					synchronized(lock) {
+						lock.notify();
+					}
 					// remove this subscription and close elvin connection
 					try {
 						response.remove();
@@ -84,9 +83,15 @@ public class HomeManagerPseudoRPCClientStub {
 			message.setValue(value);
 		}
 		message.sendNotification();
-		
+
 		// block calls until result is returned
-		while(!RESPONSE_RECEIVED);
+		synchronized(lock) {
+			try {
+				lock.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 
 		// return the result
 		return result;
@@ -150,12 +155,12 @@ public class HomeManagerPseudoRPCClientStub {
 	 * exit the client stub
 	 */
 	public void exit() {
-		// notify the all sensors to shut down
+		// notify the all sensors to shut down, if any is running
 		shutdownComponent(Message.SENSOR_NAME, Message.TYPE_ENERGY);
 		shutdownComponent(Message.SENSOR_NAME, Message.TYPE_LOCATION);
 		shutdownComponent(Message.SENSOR_NAME, Message.TYPE_TEMPERATURE);
 		
-		// notify the EMM to shut down
+		// notify the EMM to shut down, if any instance is running
 		shutdownComponent(Message.EMM_NAME);
 		
 		// destroy the message by closing elvin connection

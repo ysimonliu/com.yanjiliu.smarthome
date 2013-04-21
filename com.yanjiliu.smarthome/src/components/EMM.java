@@ -61,13 +61,6 @@ public class EMM {
 			message.setQuery(instruction);
 			message.setValue(value);
 			message.setResponse(result);
-			
-			// DEBUG
-			System.out.println("From: " + message.getFrom());
-			System.out.println("To: " + message.getTo());
-			System.out.println("Query: " + message.getQuery());
-			System.out.println("Value: " + message.getValue());
-			System.out.println("Response: " + message.getResponse());
 			message.sendNotification();
 		}
 	};

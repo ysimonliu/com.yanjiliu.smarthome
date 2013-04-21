@@ -13,13 +13,9 @@ public class EMMTesting {
 	private static String criteria, result;
 	private static Subscription response;
 	private static String elvinURL;
-	private static boolean RESPONSE_RECEIVED;
 	private static Object lock = new Object();
 	
 	public static String requestFromEMM(String query, String value) {
-		
-		// initialize the result variable
-		RESPONSE_RECEIVED = false;
 		
 		// connect to the server
 		try {
@@ -32,11 +28,9 @@ public class EMMTesting {
 		criteria = Message.criteriaBuilder(Message.FROM, Message.EMM_NAME) + " && " +
 			Message.criteriaBuilder(Message.TO, Message.HOME_MANAGER_CLIENT_STUB) + " && " +
 			Message.criteriaBuilder(Message.QUERY, query);
-		if (value != null) {
+		if (!value.isEmpty()) {
 			criteria = criteria + " && " +Message.criteriaBuilder(Message.VALUE, value);
 		}
-				
-		//FIXME:System.out.println("DEBUG: Checkpoint 1");
 				
 		try {
 			response = elvin.subscribe(criteria);
@@ -68,8 +62,7 @@ public class EMMTesting {
 			message.setValue(value);
 		}
 		message.sendNotification();
-		
-		//FIXME:System.out.println("DEBUG: Checkpoint 2");
+
 		// block calls until result is returned
 		synchronized(lock) {
 			try {
@@ -78,10 +71,17 @@ public class EMMTesting {
 				e.printStackTrace();
 			}
 		}
-		
-		//FIXME:System.out.println("DEBUG: Checkpoint 3");
+
 		// return the result
 		return result;
+	}
+	
+	public static void shutdownComponent(String componentToShutDown) {
+		message.clear();
+		message.setFrom(Message.HOME_MANAGER_CLIENT_STUB);
+		message.setTo(componentToShutDown);
+		message.setQuery(Message.SHUTDOWN);
+		message.sendNotification();
 	}
 	
 	public static void main(String[] args) {
@@ -91,5 +91,6 @@ public class EMMTesting {
 		System.out.println("B: " + requestFromEMM(Message.GET_DISC, "track.mp3"));
 		System.out.println("C: " + requestFromEMM(Message.GET_TRACKS, "Let It Be"));
 		System.out.println("D: " + requestFromEMM(Message.GET_FILES, ""));
+		shutdownComponent(Message.EMM_NAME);
 	}
 }
