@@ -32,12 +32,14 @@ public class HomeManager {
 		usersLocation = new UsersLocation();
 		server = new HomeManagerPseudoRPCServerStub(elvinURL, usersLocation);
 		controller = new HomeManagerPseudoRPCClientStub(elvinURL);
+		
+		//FIXME: uncomment and revise this part of commented out code after sensor component is re-written
 		// reset temp adjust time and log
 		tempAdjustTime = 0;
 		tempAdjustLog = "";
 		
 		// every second, the home manager will evaluate the energy and temperature
-		while (!EXIT) {
+		/*while (!EXIT) {
 			// this monitors the energy usage
 			monitorEnergy();
 			// depending on whether or not aircon is adjusting temp
@@ -56,7 +58,7 @@ public class HomeManager {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}
+		}*/
 	}
 	
 	/**

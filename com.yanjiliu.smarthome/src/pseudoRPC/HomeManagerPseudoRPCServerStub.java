@@ -41,6 +41,8 @@ public class HomeManagerPseudoRPCServerStub {
 		}
 		
 		private void processUIQuery(String query, String value) {
+			// initialize response String
+			response = "";
 			// depends on the query, ask the home manager to process the request
 			switch(query) {
 			case (Message.VIEW_TEMPERATURE_LOG): response = HomeManager.getTempAdjustLog();
@@ -59,6 +61,7 @@ public class HomeManagerPseudoRPCServerStub {
 			message.setTo(from);
 			message.setQuery(query);
 			message.setValue(value);
+			message.setResponse(response);
 			message.sendNotification();
 		}
 		

@@ -26,6 +26,13 @@ public class HomeManagerPseudoRPCClientStub {
 	public HomeManagerPseudoRPCClientStub(String elvinURL) {
 		this.elvinURL = elvinURL;
 		message = new Message(elvinURL);
+		
+		// connect to the elvin server
+		try {
+			elvin = new Elvin(elvinURL);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -36,13 +43,6 @@ public class HomeManagerPseudoRPCClientStub {
 	 * @return
 	 */
 	public String requestFromEMM(String query, String value) {
-		
-		// connect to the server
-		try {
-			elvin = new Elvin(elvinURL);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		
 		// set up listener for the response. during this period, block calling
 		criteria = Message.criteriaBuilder(Message.FROM, Message.EMM_NAME) + " && " +
@@ -67,7 +67,7 @@ public class HomeManagerPseudoRPCClientStub {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-					elvin.close();
+
 				}
 			});
 		} catch (Exception e) {
@@ -79,7 +79,7 @@ public class HomeManagerPseudoRPCClientStub {
 		message.setFrom(Message.HOME_MANAGER_CLIENT_STUB);
 		message.setTo(Message.EMM_NAME);
 		message.setQuery(query);
-		if (value != null) {
+		if (!value.isEmpty()) {
 			message.setValue(value);
 		}
 		message.sendNotification();
@@ -165,6 +165,9 @@ public class HomeManagerPseudoRPCClientStub {
 		
 		// destroy the message by closing elvin connection
 		message.destroy();
+		
+		// close elvin connection
+		elvin.close();
 	}
 	
 }

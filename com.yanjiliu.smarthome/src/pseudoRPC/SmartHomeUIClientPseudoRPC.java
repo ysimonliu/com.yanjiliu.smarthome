@@ -6,37 +6,27 @@ import org.avis.client.*;
 
 public class SmartHomeUIClientPseudoRPC {
 
-	private Elvin elvin;
+	private static Elvin elvin;
 	private String elvinURL, criteria, result;
 	private Message message;
 	private Subscription response;
+	private static Object lock = new Object();
 	
 	public SmartHomeUIClientPseudoRPC(String elvinURL) {
 		this.elvinURL = elvinURL;
 		message = new Message(elvinURL);
-	}
-	
-	public String requestFromHomeManager(String query, String value) {
-		// send request message on the server
-		message.clear();
-		message.setFrom(Message.SMART_UI_NAME);
-		message.setTo(Message.HOME_MANAGER_SERVER_STUB);
-		message.setQuery(query);
-		// when requiring temp logs and list of media files, value is not needed
-		if (!value.isEmpty()){
-			message.setValue(value);
-		}
-		message.sendNotification();
 		
-		// connect to the server
+		// connect to the elvin server
 		try {
 			elvin = new Elvin(elvinURL);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public String requestFromHomeManager(String query, String value) {
 		
-		// wait for response for the request. the key fields are exactly the same with what we just sent
-		// out except that the FROM and TO field are the opposite
+		// set up listener for the response. during this period, block calling
 		criteria = Message.criteriaBuilder(Message.FROM, Message.HOME_MANAGER_SERVER_STUB) + " && " +
 				Message.criteriaBuilder(Message.TO, Message.SMART_UI_NAME) + " && " +
 				Message.criteriaBuilder(Message.QUERY, query);
@@ -51,21 +41,40 @@ public class SmartHomeUIClientPseudoRPC {
 			response.addListener(new NotificationListener() {
 				public void notificationReceived(NotificationEvent event) {
 					result = event.notification.getString(Message.RESPONSE);
-					// remove this subscription and close the elvin connection
+					synchronized(lock) {
+						lock.notify();
+					}
+					// remove this subscription and close elvin connection
 					try {
 						response.remove();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-					elvin.close();
 				}
 			});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-		// block until the call returns
-		while(result == null);
+		// send request message on the server
+		message.clear();
+		message.setFrom(Message.SMART_UI_NAME);
+		message.setTo(Message.HOME_MANAGER_SERVER_STUB);
+		message.setQuery(query);
+		// when requiring temp logs and list of media files, value is not needed
+		if (!value.isEmpty()){
+			message.setValue(value);
+		}
+		message.sendNotification();
+		
+		// block calls until result is returned
+		synchronized(lock) {
+			try {
+				lock.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		
 		// return the result
 		return result;
@@ -88,6 +97,8 @@ public class SmartHomeUIClientPseudoRPC {
 	public void exit() {
 		shutdownHomeManager();
 		message.destroy();
+		// close connection to elvin server
+		elvin.close();
 	}
 
 }
