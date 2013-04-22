@@ -1,0 +1,13 @@
+Through Eclipse, you can export the same project to 4 instances with different launch configuration into different names.
+
+They exported names have to be:
+EMM.jar
+Sensor.jar
+HomeManager.jar
+SmartHomeUI.jar
+
+For the testing data files, the names of these files have to be kept the same. But you can edit the data inside all you want.
+
+All these limitations are due to the simple batch files that I wrote.
+
+After all is done, simply run runtest.bat, and everything will be straightforward from there.
