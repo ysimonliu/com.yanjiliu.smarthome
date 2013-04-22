@@ -100,7 +100,7 @@ public class SensorTesting{
 		}
 		*/
 		//System.out.println("Debug: shutting down sensors");
-		//shutdownComponent(Message.SENSOR_NAME, Message.TYPE_ENERGY);
+		shutdownComponent(Message.SENSOR_NAME, Message.TYPE_LOCATION);
 	} 
 }
 

@@ -19,7 +19,7 @@ public class Sensor {
 	//public final static String TEMP_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\Temperature.txt";
 	//public final static String USER1_LOCATION_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\User1Location.txt";
 	//public final static String USER2_LOCATION_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\User2Location.txt";
-	public final static String ENERGY_TEST_FILE = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\Energy.txt";
+	//public final static String ENERGY_TEST_FILE = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\Energy.txt";
 
 	// scheduler for tasks
 	private static ScheduledFuture<?> scheduleFuture;
@@ -53,7 +53,6 @@ public class Sensor {
 		// if it's a location sensor, we need to register user first to notify the home manager server stub
 		if (sensorType.equals(Message.TYPE_LOCATION)) {
 			setUserNameFromFileName(fileName);
-			registerUser();
 		}
 		
 		// initialize tempSensorMode
@@ -72,19 +71,18 @@ public class Sensor {
 	}
 
 	public static void main(String[] args) throws InterruptedException {
-		//FIXME: change back after test
-		/*if (args.length == 3) {
+		if (args.length == 3) {
 			sensorTypeInput = args[0];
 			fileNameInput = args[1];
 			elvinURL = args[2];
 		} else {
+			System.out.println("Error: number of input parameters need to be 3");
 			System.exit(1);
 		}
-		*/
-		sensorTypeInput = Message.TYPE_ENERGY;
-		elvinURL = Message.DEFAULT_ELVIN_URL;
-		fileNameInput = ENERGY_TEST_FILE;
 		
+		/*sensorTypeInput = Message.TYPE_ENERGY;
+		elvinURL = Message.DEFAULT_ELVIN_URL;
+		fileNameInput = ENERGY_TEST_FILE;*/
 		
 		// instantiate sensor
 		Sensor sensor = new Sensor(sensorTypeInput, fileNameInput);
@@ -145,20 +143,6 @@ public class Sensor {
 	}
 	
 	/**
-	 * This registers user with HomeManagerServerStub
-	 */
-	private void registerUser() {
-		controller.sendNotification(Message.VALUE_REGISTRATION);
-	}
-	
-	/**
-	 * This removes user with HomeManagerServerStub
-	 */
-	private void deresgiterUser() {
-		controller.sendNotification(Message.VALUE_DEREGISTRATION);
-	}
-	
-	/**
 	 * This method parses out the user name from the data file name
 	 * @param fileName
 	 */
@@ -195,11 +179,6 @@ public class Sensor {
 		// cancel future scheduled tasks and shut down the scheduler. if anything is running, don't interrupt it
 		scheduleFuture.cancel(DONT_INTERRUPT_IF_RUNNING);
 		scheduler.shutdown();
-
-		// if it's location sensor, we degister user name with home manager server stub
-		if (this.sensorType.equals(Message.TYPE_LOCATION)) {
-			deresgiterUser();
-		}
 		
 		// close the client stub
 		controller.exit();

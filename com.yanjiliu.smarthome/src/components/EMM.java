@@ -47,15 +47,13 @@ public class EMM {
 	 */
 	public static void main(String[] args) {
 		// read parameters. first parameter is dataFileName, second is elvinURL
-		//FIXME: change back after test
-		/*if (args.length == 2) {
-			dataFileName = args[0];
+		if (args.length == 2) {
+			dataFileNameInput = args[0];
 			elvinURL = args[1];
 		} else {
+			System.out.println("Error: number of input parameters need to be 2");
 			System.exit(1);
-		}*/
-		dataFileNameInput = TEST_FILE_LOCATION;
-		elvinURL = Message.DEFAULT_ELVIN_URL;
+		}
 		
 		EMM emm = new EMM(dataFileNameInput, elvinURL);
 	}

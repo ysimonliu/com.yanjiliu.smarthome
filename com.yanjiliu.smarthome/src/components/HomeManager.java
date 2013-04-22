@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -29,8 +30,8 @@ public class HomeManager {
 	// Pseudo RPC
 	private HomeManagerPseudoRPCServerStub server;
 	private HomeManagerPseudoRPCClientStub controller;
-	// User Location
-	private UsersLocation usersLocation;
+	// location info
+	private ArrayList<String> whosHome, previousWhosHome;
 	// temp adjustment variables
 	private int currentTemperature;
 	private String tempAdjustLog;
@@ -44,15 +45,18 @@ public class HomeManager {
 	  
 	// constructor
 	public HomeManager(String elvinURL){
-		// initialize userslocation
-		this.usersLocation = new UsersLocation();
+		// initialize location info
+		this.whosHome = new ArrayList<String> ();
+		this.previousWhosHome = whosHome;
 		// initialize RPC
 		this.server = new HomeManagerPseudoRPCServerStub(elvinURL, this);
 		this.controller = new HomeManagerPseudoRPCClientStub(elvinURL);
 		// initialize scheduler
 		this.scheduler = Executors.newScheduledThreadPool(NUM_THREADS);
 		// initialize temperature, temp adjustment time and temp adjustment log
-		this.currentTemperature = 0;
+		this.previousEnergy = 0;
+		this.currentEnergy = 0;
+		this.currentTemperature = Message.HOME_TEMP;
 		this.tempAdjustTime = 0;
 		this.tempAdjustLog = "";
 	}
@@ -100,12 +104,20 @@ public class HomeManager {
 				// this evaluates location status and switch modes of temp sensor
 				evaluateLocation();
 				// control the aircon to adjust temperature
-				controlTemperature(currentTemperature, usersLocation);
+				controlTemperature(currentTemperature);
 				// this is executed periodically, so thread sleeps 1s
 			} else {
 				// decrement time if aircon is adjusting temp
 				tempAdjustTime--;
 			}
+		}
+	}
+	
+	// monitors energy, if over 4000, warn the UI
+	public void monitorEnergy() {
+		System.out.println("DEBUG: I'm in monitor energy");
+		if (currentEnergy > 4000 && (currentEnergy != previousEnergy)) {
+			controller.warnUI(String.valueOf(currentEnergy));
 		}
 	}
 
@@ -114,14 +126,15 @@ public class HomeManager {
 	 * @param currentTemperature
 	 * @param usersLocation
 	 */
-	public void controlTemperature(int currentTemperature, UsersLocation usersLocation) {
-		if (usersLocation.getStatus().equals(Message.STATUS_HOME)) {
+	public void controlTemperature(int currentTemperature) {
+		System.out.println("DEBUG: I'm in control temperature");
+		if (!whosHome.isEmpty()) {
 			if (currentTemperature != Message.HOME_TEMP) {
-				adjustTemp(currentTemperature, usersLocation.getWhosHome());
+				adjustTemp(currentTemperature);
 			}
-		} else if (usersLocation.getStatus().equals(Message.STATUS_AWAY)) {
+		} else {
 			if (currentTemperature < Message.AWAY_MIN_TEMP || currentTemperature > Message.AWAY_MAX_TEMP) {
-				adjustTemp(currentTemperature, usersLocation.getWhosHome());
+				adjustTemp(currentTemperature);
 			}
 		}
 	}
@@ -131,40 +144,35 @@ public class HomeManager {
 	 * @param currentTemperature
 	 * @param whosHome
 	 */
-	private void adjustTemp(int currentTemperature, String[] whosHome) {
+	private void adjustTemp(int currentTemperature) {
+		System.out.println("DEBUG: I'm in adjust temperature");
 		this.tempAdjustTime = 5;
 		this.tempAdjustLog += "Air-conditioning adjusted." + EOL + "Temperature: at " + currentTemperature + " degrees" + EOL +
-				"At Home: " + whosHome(whosHome) + EOL;
+				"At Home: " + getWhosHomeInString() + EOL;
+		System.out.println(tempAdjustLog);
 	}
 
-	/**
-	 * Given the String[], this method flattens the string output with a comma in between elements
-	 * @param stringArray
-	 * @return
-	 */
-	private static String whosHome(String[] homeArray) {
-		switch (homeArray.length) {
-		case 1: return homeArray[0];
-		case 2: return homeArray[0] + " and " + homeArray[1];
+	// get who's home in a string, and if two users, connect their names with "and"
+	private String getWhosHomeInString() {
+		switch (whosHome.size()) {
+		case 1: return whosHome.get(0);
+		case 2: return whosHome.get(0) + " and " + whosHome.get(1);
 		default: return "";
 		}
 	}
 
+	/**
+	 * This method evaluates the location info and set the temperature sensor to different modes
+	 */
 	public void evaluateLocation() {
 		// only send notification when who's home is now different than last time
-		if (!usersLocation.getPreviousStatus().equals(usersLocation.getStatus())) {
-			switch(usersLocation.getStatus()) {
-			case Message.STATUS_AWAY: controller.switchTempMode(Message.NON_PERIODIC);
+		if (whosHome.equals(previousWhosHome)) {
+			switch(whosHome.size()) {
+			case 0: controller.switchTempMode(Message.NON_PERIODIC);
 				break;
-			case Message.STATUS_HOME: controller.switchTempMode(Message.PERIODIC);
+			default: controller.switchTempMode(Message.PERIODIC);
 				break;
 			}
-		}
-	}
-
-	public void monitorEnergy() {
-		if (currentEnergy > 4000 && (currentEnergy != previousEnergy)) {
-			controller.warnUI(String.valueOf(currentEnergy));
 		}
 	}
 	
@@ -177,8 +185,30 @@ public class HomeManager {
 		this.currentEnergy = Integer.parseInt(energy);
 	}
 	
-	public UsersLocation getUsersLocation() {
-		return this.usersLocation;
+	/**
+	 * This method sets whosHome based on the new data that's coming in, this is called by the server stub
+	 * @param userName
+	 * @param status
+	 */
+	public void setWhosHome(String userName, String status) {
+		previousWhosHome = whosHome;
+		// limit the number of users to 2
+		if (this.whosHome.size() == 2 && status.equals(Message.STATUS_HOME) && (!whosHome.contains(userName))) {
+			// ignore whatever is sent in
+		} else {
+			// if status is home, we add/keep the username
+			if (status.equals(Message.STATUS_HOME)) {
+				if (!whosHome.contains(userName)) {
+					whosHome.add(userName);
+				}
+			}
+			// else if the status is away, we remove/don't add username
+			else if (status.equals(Message.STATUS_AWAY)){
+				if (whosHome.contains(userName)) {
+					whosHome.remove(userName);
+				}
+			}
+		}
 	}
 	
 	public String getTempAdjustLog() {

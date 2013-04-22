@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.avis.client.*;
 
 import components.HomeManager;
-import components.UsersLocation;
 
 public class HomeManagerPseudoRPCServerStub {
 
@@ -14,7 +13,6 @@ public class HomeManagerPseudoRPCServerStub {
 	private String from, to, type, query, value, response;
 	private Message message;
 	private HomeManager homeManager;
-	private UsersLocation usersLocation;
 	
 	public HomeManagerPseudoRPCServerStub(String elvinURL, HomeManager homeManager){
 		this.message = new Message(elvinURL);
@@ -27,7 +25,6 @@ public class HomeManagerPseudoRPCServerStub {
 		}
 		
 		this.homeManager = homeManager;
-		this.usersLocation = homeManager.getUsersLocation();
 	}
 	
 	private NotificationListener HomeManagerServerStubListener = new NotificationListener(){
@@ -37,9 +34,18 @@ public class HomeManagerPseudoRPCServerStub {
 			query = event.notification.getString(Message.QUERY);
 			type = event.notification.getString(Message.TYPE);
 			value = event.notification.getString(Message.VALUE);
+			
+			//FIXME:
+			System.out.println("FROM: " + from);
+			System.out.println("QUERY: " + query);
+			System.out.println("TYPE: " + type);
+			System.out.println("VALUE: " + value);
+			
 			switch(from){
 			case Message.SENSOR_NAME: updateSensorData(type, value, event.notification);
+				break;
 			case Message.SMART_UI_NAME: processUIQuery(from, query, value);
+				break;
 			}
 		}
 		
@@ -80,13 +86,7 @@ public class HomeManagerPseudoRPCServerStub {
 			} else if (type.equals(Message.TYPE_ENERGY)){
 				homeManager.setEnergy(data);
 			} else if (type.equals(Message.TYPE_LOCATION)) {
-				if (value.equals(Message.VALUE_REGISTRATION)) {
-					usersLocation.addUser(notification.getString(Message.USER));
-				} else if (value.equals(Message.VALUE_DEREGISTRATION)) {
-					usersLocation.removeUser(notification.getString(Message.USER));
-				} else {
-					usersLocation.setStatus(notification.getString(Message.USER), data);
-				}
+				homeManager.setWhosHome(notification.getString(Message.USER), data);
 			}
 		}
 	};
