@@ -27,7 +27,7 @@ public final class Sensor {
 	private final int TICK_SPEED = 1;
 	private final TimeUnit TICK_SPEED_UNIT = TimeUnit.SECONDS;
 	private static final int NUM_THREADS = 1;
-	private static final boolean INTERRUPT_IF_RUNNING = true;
+	private static final boolean DONT_INTERRUPT_IF_RUNNING = false;
 	// Pseudo RPC
 	private SensorPseudoRPCServerStub server;
 	private SensorPseudoRPCClientStub controller;
@@ -192,7 +192,7 @@ public final class Sensor {
 	 */
 	public void exit(){
 		// cancel future scheduled tasks and shut down the scheduler. if anything is running, don't interrupt it
-		scheduleFuture.cancel(INTERRUPT_IF_RUNNING);
+		scheduleFuture.cancel(DONT_INTERRUPT_IF_RUNNING);
 		scheduler.shutdown();
 
 		// if it's location sensor, we degister user name with home manager server stub
