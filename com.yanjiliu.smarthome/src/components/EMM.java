@@ -3,9 +3,6 @@ package components;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
-
-import org.avis.client.*;
 
 import pseudoRPC.EMMPseudoRPCServerStub;
 import pseudoRPC.Message;
@@ -18,7 +15,7 @@ public class EMM {
 	private BufferedReader br;
 	private EMMPseudoRPCServerStub server;
 	private MusicFileList mfl;
-	private String lineContent, dataFileName, fileName, title, disc, track, from, query, temp;
+	private String lineContent, dataFileName, fileName, title, disc, track;
 	private String[] values;
 	// take the program input parameters
 	private static String dataFileNameInput, elvinURL;
@@ -41,7 +38,7 @@ public class EMM {
 		}
 		
 		// start the server stub
-		this.server = new EMMPseudoRPCServerStub(elvinURL, mfl);
+		this.server = new EMMPseudoRPCServerStub(elvinURL, this);
 	}
 	
 	/**
@@ -101,14 +98,22 @@ public class EMM {
 				lineContent = br.readLine();
 			
 				// add this record to music file list
-				mfl.addFile(fileName, title, disc, track);
+				this.mfl.addFile(fileName, title, disc, track);
 			}
 
 		}
 	}
 	
+	/**
+	 * returns MFL
+	 * @return
+	 */
+	public MusicFileList getMFL() {
+		return this.mfl;
+	}
+	
 	// exit the EMM component gracefully
-	public static void exit() {
+	public void exit() {
 		System.exit(0);
 	}
 }

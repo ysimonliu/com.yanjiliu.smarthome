@@ -7,63 +7,51 @@ import java.io.InputStreamReader;
 import org.avis.client.*;
 
 import pseudoRPC.Message;
-import pseudoRPC.SmartHomeUIClientPseudoRPC;
+import pseudoRPC.SmartHomeUIPseudoRPCClientStub;
+import pseudoRPC.SmartHomeUIPseudoRPCServerStub;
 
 public class SmartHomeUI {
 	
-	private static String elvinURL, input;
-	private final static String ENERGY_SUB_CRITERIA = Message.FROM + " == " + Message.HOME_MANAGER_CLIENT_STUB + " && " +
-			Message.TO + " == " + Message.HOME_MANAGER_CLIENT_STUB + " && " +
-			Message.QUERY + " == " + Message.WARN;
-	private static Elvin elvin;
-	private static Subscription subscription;
-	private static BufferedReader stdin;
-	private static SmartHomeUIClientPseudoRPC UIclient;
+	private static String elvinURLInput; 
+	private String input;
+	private BufferedReader stdin;
+	private SmartHomeUIPseudoRPCServerStub server;
+	private SmartHomeUIPseudoRPCClientStub controller;
 	
-	// this listener listens to the message from Home Manager only about the energy consumption warnings
-	private static NotificationListener UIListener = new NotificationListener(){
-		// upon notification received, execute the following actions
-		public void notificationReceived(NotificationEvent event){
-			System.out.println("Energy Usage Warning: Current electricity consumption is " + 
-					event.notification.getString(Message.VALUE) + ".");
-			System.out.println("Please consider the environment before switching on any electrical appliance.");
-		}
-	};
-	
+	public SmartHomeUI(String elvinURL) {
+		// instantiate and start the client stub and server stub
+		this.controller = new SmartHomeUIPseudoRPCClientStub(elvinURL);
+		this.server = new SmartHomeUIPseudoRPCServerStub(elvinURL, this);
+		// initialize standard input
+		stdin = new BufferedReader(new InputStreamReader(System.in)); 
+		// load menu
+		welcomeMessage();
+		mainMenu();
+	}
+
+	/**
+	 * main method
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		// reads the parameter into variable
 		if (args.length == 1) {
-			elvinURL = args[0];
+			elvinURLInput = args[0];
 		}
 		else if (args.length == 0) {
-			elvinURL = Message.DEFAULT_ELVIN_URL;
+			elvinURLInput = Message.DEFAULT_ELVIN_URL;
 		}
 		else {
 			System.exit(1);
 		}
-		
-		//add listener to energy over consumption
-		try {
-			elvin = new Elvin(elvinURL);
-			subscription = elvin.subscribe(ENERGY_SUB_CRITERIA);
-			subscription.addListener(UIListener);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		// instantiate the clientr stub and stdin
-		UIclient = new SmartHomeUIClientPseudoRPC(elvinURL);
-		stdin = new BufferedReader(new InputStreamReader(System.in)); 
-		
-		// load menu
-		welcomeMessage();
-		mainMenu();
+	
+		SmartHomeUI smartHomeUI = new SmartHomeUI(elvinURLInput);
 	}
 	
 	/**
 	 * This method displays the one time welcome message
 	 */
-	private static void welcomeMessage() {
+	private void welcomeMessage() {
 		System.out.println("Welcome to the Smart Home Monitoring System");
 		System.out.println("Please enter your user name:");
 		try {
@@ -76,7 +64,7 @@ public class SmartHomeUI {
 	/**
 	 * This message loads the main menu
 	 */
-	private static void mainMenu() {
+	private void mainMenu() {
 		stdin = new BufferedReader (new InputStreamReader(System.in));
 		
 		try {
@@ -116,25 +104,9 @@ public class SmartHomeUI {
 	}
 
 	/**
-	 * This method will notify the home manager to shut down, remove subscription, close elvin connection
-	 * tells the client stub to exit, and then exit the whole program itself
-	 */
-	private static void exit() {
-		UIclient.shutdownHomeManager();
-		try {
-			subscription.remove();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		elvin.close();
-		UIclient.exit();
-		System.exit(0);
-	}
-
-	/**
 	 * This method will execute the UI part of the view disc tracks command
 	 */
-	private static void viewDiscTracks() {
+	private void viewDiscTracks() {
 		// ask and takes the input of the disc title
 		System.out.println("Please enter the disc title: ");
 		try {
@@ -145,7 +117,7 @@ public class SmartHomeUI {
 		System.out.println();
 		
 		// get the result and display the result, the case of no tracks matched are already taken care of at lower levels of code
-		System.out.println(UIclient.requestFromHomeManager(Message.GET_TRACKS, input));
+		System.out.println(controller.requestFromHomeManager(Message.GET_TRACKS, input));
 		
 		// go to enter to return at the end
 		pressEnterToReturn();
@@ -154,10 +126,10 @@ public class SmartHomeUI {
 	/**
 	 * This method executes the UI part of the view media files command
 	 */
-	private static void viewMediaFiles() {
+	private void viewMediaFiles() {
 		System.out.println();
 		// print out the result. the case of no files found are already taken care of at lower levels of code
-		System.out.println(UIclient.requestFromHomeManager(Message.VIEW_MEDIA_FILES, Message.VIEW_MEDIA_FILES));
+		System.out.println(controller.requestFromHomeManager(Message.VIEW_MEDIA_FILES, Message.VIEW_MEDIA_FILES));
 		
 		// go to enter to return at the end
 		pressEnterToReturn();
@@ -166,11 +138,11 @@ public class SmartHomeUI {
 	/**
 	 * This method executes the UI part of the view temperature log command
 	 */
-	private static void viewLog() {
+	private void viewLog() {
 		System.out.println();
 		
 		// display temperature log. the case of empty logs are already taken care of at lower levels of code
-		System.out.println(UIclient.requestFromHomeManager(Message.VIEW_TEMPERATURE_LOG, Message.VIEW_TEMPERATURE_LOG));
+		System.out.println(controller.requestFromHomeManager(Message.VIEW_TEMPERATURE_LOG, Message.VIEW_TEMPERATURE_LOG));
 		
 		// go to enter to return at the end
 		pressEnterToReturn();
@@ -179,9 +151,7 @@ public class SmartHomeUI {
 	/**
 	 * This method is to perform the "ENTER" to return after each function is executed
 	 */
-	private static void pressEnterToReturn() {
-		// takes anything and return to mainMenu
-		System.out.println();
+	private void pressEnterToReturn() {
 		try {
 			input = stdin.readLine().trim();
 		} catch (IOException e) {
@@ -190,6 +160,22 @@ public class SmartHomeUI {
 		
 		// once something is returned, go back to main menu
 		mainMenu();
+	}
+	
+	/**
+	 * This method will notify the home manager to shut down, remove subscription, close elvin connection
+	 * tells the client stub to exit, and then exit the whole program itself
+	 */
+	private void exit() {
+		controller.shutdownHomeManager();
+		controller.exit();
+		server.exit();
+		System.exit(0);
+	}
+	
+	public void energyWarning(String energyConsumption) {
+		System.out.println("Energy Usage Warning: Current electricity consumption is " + energyConsumption + ".");
+		System.out.println("Please consider the environment before switching on any electrical appliance.");
 	}
 	
 }

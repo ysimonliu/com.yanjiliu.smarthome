@@ -4,16 +4,15 @@ import java.io.IOException;
 
 import org.avis.client.*;
 
-public class SmartHomeUIClientPseudoRPC {
+public class SmartHomeUIPseudoRPCClientStub {
 
 	private static Elvin elvin;
-	private String elvinURL, criteria, result;
+	private String criteria, result;
 	private Message message;
 	private Subscription response;
 	private static Object lock = new Object();
 	
-	public SmartHomeUIClientPseudoRPC(String elvinURL) {
-		this.elvinURL = elvinURL;
+	public SmartHomeUIPseudoRPCClientStub(String elvinURL) {
 		message = new Message(elvinURL);
 		
 		// connect to the elvin server

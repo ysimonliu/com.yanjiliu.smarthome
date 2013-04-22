@@ -1,5 +1,7 @@
 package pseudoRPC;
 
+import java.io.IOException;
+
 import org.avis.client.Elvin;
 import org.avis.client.NotificationEvent;
 import org.avis.client.NotificationListener;
@@ -11,13 +13,15 @@ import components.MusicFileList;
 public class EMMPseudoRPCServerStub {
 	
 	private Message message;
+	private EMM emm;
 	private String query, from, temp;
 	private MusicFileList mfl;
 	private Elvin elvin;
 	private Subscription sub;
 	
-	public EMMPseudoRPCServerStub(String elvinURL, MusicFileList mfl) {
-		this.mfl = mfl;
+	public EMMPseudoRPCServerStub(String elvinURL, EMM emm) {
+		this.emm = emm;
+		this.mfl = emm.getMFL();
 		this.message = new Message(elvinURL);
 		// subscribe to elvin instructions
 		try{
@@ -55,10 +59,11 @@ public class EMMPseudoRPCServerStub {
 						event.notification.getString(Message.VALUE), mfl.getFiles());
 			}
 			else if (query.equals(Message.SHUTDOWN)) {
-				EMM.exit();
+				exit();
 			}
 		
 		}
+		
 		// this method sends out response notifications
 		private void sendNotification(String to, String instruction, String value, String result) {
 			message.clear();
@@ -68,6 +73,21 @@ public class EMMPseudoRPCServerStub {
 			message.setValue(value);
 			message.setResponse(result);
 			message.sendNotification();
+		}
+		
+		/**
+		 * This method will gracefully exit this server stub as well as the sensor
+		 */
+		private void exit() {
+			// remove subscription and close elvin connection
+			try {
+				sub.remove();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			elvin.close();
+			// close EMM
+			emm.exit();
 		}
 	};
 }
