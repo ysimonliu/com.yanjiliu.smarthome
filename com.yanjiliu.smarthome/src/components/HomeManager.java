@@ -1,120 +1,140 @@
 package components;
 
-import pseudoRPC.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+
+import pseudoRPC.HomeManagerPseudoRPCClientStub;
+import pseudoRPC.HomeManagerPseudoRPCServerStub;
+import pseudoRPC.Message;
+import pseudoRPC.SensorPseudoRPCClientStub;
+import pseudoRPC.SensorPseudoRPCServerStub;
 
 public class HomeManager {
 	
-	private static String elvinURL;
-	private static boolean EXIT;
-	private static HomeManagerPseudoRPCServerStub server;
-	private static HomeManagerPseudoRPCClientStub controller;
-	private static String energy, previousEnergy, temperature, tempAdjustLog;
-	private static UsersLocation usersLocation;
-	private static int tempAdjustTime;
+	// scheduler for tasks
+	private static ScheduledFuture<?> scheduleFuture;
+	private static ScheduledExecutorService scheduler;
+	private final int INITIAL_DELAY = 0;
+	private final int TICK_SPEED = 1;
+	private final TimeUnit TICK_SPEED_UNIT = TimeUnit.SECONDS;
+	private static final int NUM_THREADS = 1;
+	private static final boolean DONT_INTERRUPT_IF_RUNNING = false;
+	// Pseudo RPC
+	private HomeManagerPseudoRPCServerStub server;
+	private HomeManagerPseudoRPCClientStub controller;
+	// User Location
+	private UsersLocation usersLocation;
+	// temp adjustment variables
+	private int currentTemperature;
+	private String tempAdjustLog;
+	private int tempAdjustTime;
+	// energy tracking
+	private int currentEnergy, previousEnergy;
+	// input parameter
+	private static String elvinURLInput;
+	// helper variables
 	private static final String EOL = System.getProperty("line.separator"); 
-	
-	/**
-	 * main method upon start of this program
-	 * @param args
-	 */
+	  
+	// constructor
+	public HomeManager(String elvinURL){
+		// initialize userslocation
+		this.usersLocation = new UsersLocation();
+		// initialize RPC
+		this.server = new HomeManagerPseudoRPCServerStub(elvinURL, this);
+		this.controller = new HomeManagerPseudoRPCClientStub(elvinURL);
+		// initialize scheduler
+		this.scheduler = Executors.newScheduledThreadPool(NUM_THREADS);
+		// initialize temperature, temp adjustment time and temp adjustment log
+		this.currentTemperature = 0;
+		this.tempAdjustTime = 0;
+		this.tempAdjustLog = "";
+	}
+
 	public static void main(String[] args) {
 		// reads the parameter into variable
 		if (args.length == 1) {
-			elvinURL = args[0];
+			elvinURLInput = args[0];
 		}
 		else if (args.length == 0) {
-			elvinURL = Message.DEFAULT_ELVIN_URL;
+			elvinURLInput = Message.DEFAULT_ELVIN_URL;
 		}
 		else {
 			System.exit(1);
 		}
 		
-		usersLocation = new UsersLocation();
-		server = new HomeManagerPseudoRPCServerStub(elvinURL, usersLocation);
-		controller = new HomeManagerPseudoRPCClientStub(elvinURL);
+		// instantiate Home Manager
+		HomeManager homeManager = new HomeManager(elvinURLInput);
 		
-		//FIXME: uncomment and revise this part of commented out code after sensor component is re-written
-		// reset temp adjust time and log
-		tempAdjustTime = 0;
-		tempAdjustLog = "";
-		
-		// every second, the home manager will evaluate the energy and temperature
-		/*while (!EXIT) {
+		// start Home Manager
+		homeManager.activateHomeManager();
+	}
+	
+	/**
+	 * This method will activate the sensor and send periodic notifications onto elvin
+	 */
+	private void activateHomeManager(){
+		Thread homeManagerTask = new homeManagerTask();
+		scheduleFuture = scheduler.scheduleWithFixedDelay(homeManagerTask, INITIAL_DELAY, TICK_SPEED, TICK_SPEED_UNIT);
+	}
+	
+	/**
+	 * This class defines the main task that will be executed periodically
+	 */
+	private final class homeManagerTask extends Thread {
+
+		/**
+		 * This is the main execution of the thread
+		 */
+		public void run() {
 			// this monitors the energy usage
 			monitorEnergy();
 			// depending on whether or not aircon is adjusting temp
 			if (tempAdjustTime <= 0) {
 				// this evaluates location status and switch modes of temp sensor
 				evaluateLocation();
-				// the intelligence of temperature is defined in its method
-				controlTemperature(Integer.parseInt(temperature), usersLocation.getStatus(), usersLocation.getWhosHome());
+				// control the aircon to adjust temperature
+				controlTemperature(currentTemperature, usersLocation);
 				// this is executed periodically, so thread sleeps 1s
 			} else {
 				// decrement time if aircon is adjusting temp
 				tempAdjustTime--;
 			}
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}*/
+		}
 	}
-	
+
 	/**
-	 * This method evaluates the location info, and upon a change, switch the mode for temp sensor
-	 * @param lastLocation
-	 * @param location
+	 * This method controls temperature based on current temperature and whether someone's home
+	 * @param currentTemperature
+	 * @param usersLocation
 	 */
-	private static void evaluateLocation() {
-		// only send notification when who's home is now different than last time
-		if (!usersLocation.getPreviousStatus().equals(usersLocation.getStatus())) {
-			switch(usersLocation.getStatus()) {
-			case Message.STATUS_AWAY: controller.switchTempMode(Message.NON_PERIODIC);
-				break;
-			case Message.STATUS_HOME: controller.switchTempMode(Message.PERIODIC);
-				break;
+	public void controlTemperature(int currentTemperature, UsersLocation usersLocation) {
+		if (usersLocation.getStatus().equals(Message.STATUS_HOME)) {
+			if (currentTemperature != Message.HOME_TEMP) {
+				adjustTemp(currentTemperature, usersLocation.getWhosHome());
+			}
+		} else if (usersLocation.getStatus().equals(Message.STATUS_AWAY)) {
+			if (currentTemperature < Message.AWAY_MIN_TEMP || currentTemperature > Message.AWAY_MAX_TEMP) {
+				adjustTemp(currentTemperature, usersLocation.getWhosHome());
 			}
 		}
 	}
 
 	/**
-	 * This method monitors the energy usage
+	 * This method will start adjusting the temperature
+	 * @param currentTemperature
+	 * @param whosHome
 	 */
-	private static void monitorEnergy() {
-		if (Integer.parseInt(energy) > 4000 && !(energy.equals(previousEnergy))) {
-			controller.warnUI(energy);
-		}
-	}
-
-	/**
-	 * This method controls the temperature in the room
-	 * depending on the location data as well as the temperature data
-	 * Because too much logic here, I keep a copy of currentTemp and currentLocation for use
-	 */
-	private static void controlTemperature(int currentTemp, String locationStatus, String[] whosHome) {
-		if (locationStatus.equals(Message.STATUS_HOME)) {
-			if (currentTemp != Message.HOME_TEMP) {
-				adjustTemp(currentTemp, whosHome);
-			}
-		} else if (locationStatus.equals(Message.STATUS_AWAY)) {
-			if (currentTemp < Message.AWAY_MIN_TEMP || currentTemp > Message.AWAY_MAX_TEMP) {
-				adjustTemp(currentTemp, whosHome);
-			}
-		}
-	}
-	
-	/**
-	 * Adjust temperature
-	 * @param currentTemp
-	 * @param nowHome2
-	 */
-	private static void adjustTemp(int currentTemp, String[] nowHome) {
-		tempAdjustTime = 5;
-		// as the log we plan to keep is not long, I decide to keep it as a string variable in memory
-		// I admit that this solution is a bit hacky, but it should be good enough for our test run
-		tempAdjustLog += "Air-conditioning adjusted." + EOL + "Temperature: at " + currentTemp + " degrees" + EOL +
-				"At Home: " + whosHome(nowHome) + EOL;
+	private void adjustTemp(int currentTemperature, String[] whosHome) {
+		this.tempAdjustTime = 5;
+		this.tempAdjustLog += "Air-conditioning adjusted." + EOL + "Temperature: at " + currentTemperature + " degrees" + EOL +
+				"At Home: " + whosHome(whosHome) + EOL;
 	}
 
 	/**
@@ -130,62 +150,67 @@ public class HomeManager {
 		}
 	}
 
-	/**
-	 * setters for energy, accessible by client stub to update data
-	 * @param newEnergy
-	 */
-	public static void setEnergy(String newEnergy) {
-		previousEnergy = energy;
-		energy = newEnergy;
-	}
-	
-	/**
-	 * setters for temperature, accessible by client stub to update data
-	 * @param newTemperature
-	 */
-	public static void setTemperature(String newTemperature) {
-		temperature = newTemperature;
-	}
-	
-	/**
-	 * Return the temperature adjust log
-	 * @return
-	 */
-	public static String getTempAdjustLog() {
-		// if the log is empty then return "Log of temperature adjustment is empty"
-		if (tempAdjustLog.isEmpty()) {
-			return "Log of temperature adjustment is empty";
+	public void evaluateLocation() {
+		// only send notification when who's home is now different than last time
+		if (!usersLocation.getPreviousStatus().equals(usersLocation.getStatus())) {
+			switch(usersLocation.getStatus()) {
+			case Message.STATUS_AWAY: controller.switchTempMode(Message.NON_PERIODIC);
+				break;
+			case Message.STATUS_HOME: controller.switchTempMode(Message.PERIODIC);
+				break;
+			}
 		}
-		return tempAdjustLog;
-	}
-	
-	/**
-	 * Exit the home manager gracefully along with the client and server stub
-	 */
-	public static void exit(){
-		// reset the EXIT value so no more evaluation/monitoring is executed
-		EXIT = true;
-		
-		// notify the client and server stub to exit
-		server.exit();
-		controller.exit();
-		System.exit(0);
 	}
 
-	/**
-	 * Get a list of media files from EMM
-	 * @return
-	 */
-	public static String getMediaFiles() {
+	public void monitorEnergy() {
+		if (currentEnergy > 4000 && (currentEnergy != previousEnergy)) {
+			controller.warnUI(String.valueOf(currentEnergy));
+		}
+	}
+	
+	public void setTemperature(String temperature) {
+		this.currentTemperature = Integer.parseInt(temperature);
+	}
+	
+	public void setEnergy(String energy) {
+		this.previousEnergy = this.currentEnergy;
+		this.currentEnergy = Integer.parseInt(energy);
+	}
+	
+	public UsersLocation getUsersLocation() {
+		return this.usersLocation;
+	}
+	
+	public String getTempAdjustLog() {
+		// if the log is empty then return "Log of temperature adjustment is empty"
+		if (this.tempAdjustLog.isEmpty()) {
+			return "Log of temperature adjustment is empty";
+		}
+		return this.tempAdjustLog;
+	}
+	
+	public String getMediaFiles() {
 		return controller.requestFromEMM(Message.GET_FILES, "");
 	}
 
-	/**
-	 * Get track titles
-	 * @param value
-	 * @return
-	 */
-	public static String getTracks(String value) {
+	public String getTracks(String value) {
 		return controller.requestFromEMM(Message.GET_TRACKS, value);
 	}
-}
+	
+	/**
+	 * This method will exit the current sensor, as well as close down the client stub. 
+	 * The server stub will be closed because this method is triggered by the server stub
+	 */
+	public void exit(){
+		// cancel future scheduled tasks and shut down the scheduler. if anything is running, don't interrupt it
+		scheduleFuture.cancel(DONT_INTERRUPT_IF_RUNNING);
+		scheduler.shutdown();
+		
+		// close the client stub
+		controller.exit();
+		
+		// exit the entire program
+		System.exit(0);
+	}
+  
+} 

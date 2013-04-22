@@ -13,7 +13,7 @@ import pseudoRPC.Message;
 import pseudoRPC.SensorPseudoRPCClientStub;
 import pseudoRPC.SensorPseudoRPCServerStub;
 
-public final class Sensor {
+public class Sensor {
 	
 	// below is only for test data
 	//public final static String TEMP_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\Temperature.txt";

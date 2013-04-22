@@ -11,12 +11,13 @@ public class HomeManagerPseudoRPCServerStub {
 
 	private Elvin elvin;
 	private Subscription sub;
-	private static String from, to, type, query, value, response;
-	private static Message message;
-	private static UsersLocation usersLocation;
+	private String from, to, type, query, value, response;
+	private Message message;
+	private HomeManager homeManager;
+	private UsersLocation usersLocation;
 	
-	public HomeManagerPseudoRPCServerStub(String elvinURL, UsersLocation usersLocation){
-		message = new Message(elvinURL);
+	public HomeManagerPseudoRPCServerStub(String elvinURL, HomeManager homeManager){
+		this.message = new Message(elvinURL);
 		try {
 			elvin = new Elvin(elvinURL);
 			sub = elvin.subscribe(Message.criteriaBuilder(Message.TO, Message.HOME_MANAGER_SERVER_STUB));
@@ -24,7 +25,9 @@ public class HomeManagerPseudoRPCServerStub {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		HomeManagerPseudoRPCServerStub.usersLocation = usersLocation;
+		
+		this.homeManager = homeManager;
+		this.usersLocation = homeManager.getUsersLocation();
 	}
 	
 	private NotificationListener HomeManagerServerStubListener = new NotificationListener(){
@@ -45,13 +48,13 @@ public class HomeManagerPseudoRPCServerStub {
 			response = "";
 			// depends on the query, ask the home manager to process the request
 			switch(query) {
-			case (Message.VIEW_TEMPERATURE_LOG): response = HomeManager.getTempAdjustLog();
+			case (Message.VIEW_TEMPERATURE_LOG): response = homeManager.getTempAdjustLog();
 				break;
-			case (Message.VIEW_MEDIA_FILES): response = HomeManager.getMediaFiles();
+			case (Message.VIEW_MEDIA_FILES): response = homeManager.getMediaFiles();
 				break;
-			case (Message.GET_TRACKS): response = HomeManager.getTracks(value);
+			case (Message.GET_TRACKS): response = homeManager.getTracks(value);
 				break;
-			case (Message.SHUTDOWN): HomeManager.exit();
+			case (Message.SHUTDOWN): homeManager.exit();
 				break;
 			}
 			
@@ -73,9 +76,9 @@ public class HomeManagerPseudoRPCServerStub {
 		 */
 		private void updateSensorData(String type, String data, Notification notification) {
 			if (type.equals(Message.TYPE_TEMPERATURE)) {
-				HomeManager.setTemperature(data);
+				homeManager.setTemperature(data);
 			} else if (type.equals(Message.TYPE_ENERGY)){
-				HomeManager.setEnergy(data);
+				homeManager.setEnergy(data);
 			} else if (type.equals(Message.TYPE_LOCATION)) {
 				if (value.equals(Message.VALUE_REGISTRATION)) {
 					usersLocation.addUser(notification.getString(Message.USER));

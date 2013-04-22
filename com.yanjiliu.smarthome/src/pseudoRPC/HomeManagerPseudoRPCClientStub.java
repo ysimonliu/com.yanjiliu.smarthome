@@ -93,14 +93,14 @@ public class HomeManagerPseudoRPCClientStub {
 	
 	/**
 	 * This method sends out a notification to the UI to warn about energy overusage
-	 * @param energyConsumption
+	 * @param currentEnergy
 	 */
-	public void warnUI(String energyConsumption) {
+	public void warnUI(String currentEnergy) {
 		message.clear();
 		message.setFrom(Message.HOME_MANAGER_CLIENT_STUB);
 		message.setTo(Message.SMART_UI_NAME);
 		message.setQuery(Message.WARN);
-		message.setValue(energyConsumption);
+		message.setValue(currentEnergy);
 		message.sendNotification();
 	}
 	
