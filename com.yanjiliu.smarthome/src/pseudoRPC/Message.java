@@ -24,6 +24,11 @@ public class Message {
 	 * User - specific to location sensor data messages. this contains the user name
 	 */
 	
+	/**
+	 * Data Type Design thinking: I have been back and forth between final strings and enums for the data structure of these variables
+	 * defined below. But to make my life easier, especially notifications on elvin will be mainly String, I decide to go the String way
+	 */
+	
 	// key in notifications
 	public final static String TO = "TO";
 	public final static String FROM = "FROM";

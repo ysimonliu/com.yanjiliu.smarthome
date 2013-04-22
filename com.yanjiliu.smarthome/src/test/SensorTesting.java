@@ -72,7 +72,17 @@ public class SensorTesting{
 		SensorTesting me = new SensorTesting(Message.DEFAULT_ELVIN_URL);
 		
 		message = new Message(Message.DEFAULT_ELVIN_URL);
+		
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		switchTempMode(Message.DEFAULT_ELVIN_URL, Message.NON_PERIODIC);
 
+		shutdownComponent(Message.SENSOR_NAME, Message.TYPE_TEMPERATURE);
 	} 
 }
 

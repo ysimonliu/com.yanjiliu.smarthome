@@ -29,13 +29,13 @@ public final class Sensor {
 	private static final int NUM_THREADS = 1;
 	private static final boolean DONT_INTERRUPT_IF_RUNNING = false;
 	// Pseudo RPC
-	private static SensorPseudoRPCServerStub server;
-	private static SensorPseudoRPCClientStub controller;
+	private SensorPseudoRPCServerStub server;
+	private SensorPseudoRPCClientStub controller;
 	// parameters taken from standard input
 	private static String sensorTypeInput, fileNameInput, elvinURL;
 	// other variables
 	private String[] values;
-	private String fileName, sensorType, line, value, tempSensorMode;
+	private String fileName, sensorType, line, value, tempSensorMode, userName;
 	private int period;
 	private FileReader fr;
 	private BufferedReader br;
@@ -45,8 +45,20 @@ public final class Sensor {
 		this.sensorType = sensorTypeInput;
 		this.fileName = fileNameInput;
 		
+		// initialize RPC
+		server = new SensorPseudoRPCServerStub(elvinURL, this);
+		controller = new SensorPseudoRPCClientStub(elvinURL, this);
+		
+		// if it's a location sensor, we need to register user first to notify the home manager server stub
+		if (sensorType.equals(Message.TYPE_LOCATION)) {
+			setUserNameFromFileName(fileName);
+			registerUser();
+		}
+		
 		// initialize tempSensorMode
-		this.tempSensorMode = Message.PERIODIC;
+		if (sensorType.equals(Message.TYPE_TEMPERATURE)) {
+			this.tempSensorMode = Message.PERIODIC;
+		}
 		
 		scheduler = Executors.newScheduledThreadPool(NUM_THREADS);
 		// open the data file to stream
@@ -57,7 +69,7 @@ public final class Sensor {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void main(String[] args) throws InterruptedException {
 		//FIXME: change back after test
 		/*if (args.length == 3) {
@@ -76,21 +88,26 @@ public final class Sensor {
 		// instantiate sensor
 		Sensor sensor = new Sensor(sensorTypeInput, fileNameInput);
 		
-		// initialize RPC
-		server = new SensorPseudoRPCServerStub(elvinURL, sensor);
-		controller = new SensorPseudoRPCClientStub(elvinURL);
-		
 		// activate the sensor
 		sensor.activateSensor();
 	}
 	
+	/**
+	 * This method will activate the sensor and send periodic notifications onto elvin
+	 */
 	private void activateSensor(){
 		Thread sensorTask = new SensorTask();
 		scheduleFuture = scheduler.scheduleWithFixedDelay(sensorTask, INITIAL_DELAY, TICK_SPEED, TICK_SPEED_UNIT);
 	}
 	
+	/**
+	 * This class defines the main task that will be executed periodically
+	 */
 	private final class SensorTask extends Thread {
 
+		/**
+		 * This is the main execution of the thread
+		 */
 		public void run() {
 			// if period of last line = 0, then it's time to read the next line
 			if (period <= 0) {
@@ -116,30 +133,78 @@ public final class Sensor {
 				
 			// depends on the type, put notifications on Elvin
 			if (sensorType.equals(Message.TYPE_TEMPERATURE) && tempSensorMode.equals(Message.NON_PERIODIC)) {
-				controller.sendNonPeriodicTempNot(sensorType, value);
+				controller.sendNonPeriodicTempNot(value);
 			} else {
-				controller.sendNotification(sensorType, value);
+				controller.sendNotification(value);
 			}
 							
 			// decrement period
 			period--;
 		}
 	}
-  
-	public void exit(){
-		// cancel future scheduled tasks and shut down the scheduler. if anything is running, don't interrupt it
-		scheduleFuture.cancel(DONT_INTERRUPT_IF_RUNNING);
-		scheduler.shutdown();
-		// exit the entire program
-		System.exit(0);
+	
+	/**
+	 * This registers user with HomeManagerServerStub
+	 */
+	private void registerUser() {
+		controller.sendNotification(Message.VALUE_REGISTRATION);
+	}
+	
+	/**
+	 * This removes user with HomeManagerServerStub
+	 */
+	private void deresgiterUser() {
+		controller.sendNotification(Message.VALUE_DEREGISTRATION);
+	}
+	
+	/**
+	 * This method parses out the user name from the data file name
+	 * @param fileName
+	 */
+	private void setUserNameFromFileName(String fileName) {
+		// this approach may be a bit hacky, but basically I cut off the last 12 characters of the fileName
+		// which should leave us the user name
+		setUserName(fileName.substring(0, fileName.length() - 12));
 	}
 
 	public void setTemperatureMode(String mode) {
-		this.tempSensorMode = mode;
+		// if the input is legal, then set, else don't
+		if (mode.equals(Message.PERIODIC) || mode.equals(Message.NON_PERIODIC)) {
+			this.tempSensorMode = mode;
+		}
+	}
+	
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 	
 	public String getSensorType() {
 		return this.sensorType;
+	}
+	
+	public String getUserName() {
+		return this.userName;
+	}
+	
+	/**
+	 * This method will exit the current sensor, as well as close down the client stub. 
+	 * The server stub will be closed because this method is triggered by the server stub
+	 */
+	public void exit(){
+		// cancel future scheduled tasks and shut down the scheduler. if anything is running, don't interrupt it
+		scheduleFuture.cancel(DONT_INTERRUPT_IF_RUNNING);
+		scheduler.shutdown();
+		
+		// if it's location sensor, we degister user name with home manager server stub
+		if (this.sensorType.equals(Message.TYPE_LOCATION)) {
+			deresgiterUser();
+		}
+		
+		// close the client stub
+		controller.exit();
+		
+		// exit the entire program
+		System.exit(0);
 	}
   
 } 
