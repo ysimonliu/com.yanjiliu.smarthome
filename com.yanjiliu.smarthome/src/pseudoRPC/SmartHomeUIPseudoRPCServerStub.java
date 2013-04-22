@@ -11,9 +11,9 @@ import components.SmartHomeUI;
 
 public class SmartHomeUIPseudoRPCServerStub {
 	
-	private final String ENERGY_SUB_CRITERIA = Message.FROM + " == " + Message.HOME_MANAGER_CLIENT_STUB + " && " +
-			Message.TO + " == " + Message.SMART_UI_NAME + " && " +
-			Message.QUERY + " == " + Message.WARN;
+	private final String ENERGY_SUB_CRITERIA = Message.criteriaBuilder(Message.FROM, Message.HOME_MANAGER_CLIENT_STUB) + " && " +
+			Message.criteriaBuilder(Message.TO, Message.SMART_UI_NAME) + " && " +
+			Message.criteriaBuilder(Message.QUERY, Message.WARN);
 	private Elvin elvin;
 	private Subscription subscription;
 	private SmartHomeUI smartHomeUI;
@@ -22,8 +22,7 @@ public class SmartHomeUIPseudoRPCServerStub {
 	private NotificationListener UIListener = new NotificationListener(){
 		// upon notification received, simply print out warning on to system standard out
 		public void notificationReceived(NotificationEvent event){
-			//smartHomeUI.energyWarning(event.notification.getString(Message.VALUE));
-			System.out.println(event.notification.getString(Message.VALUE));
+			smartHomeUI.energyWarning(event.notification.getString(Message.VALUE));
 		}
 	};
 	

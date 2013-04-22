@@ -1,0 +1,1 @@
+java -jar Sensor.jar location User1Location.txt elvin://0.0.0.0:2917

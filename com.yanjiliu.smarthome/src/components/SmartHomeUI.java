@@ -79,7 +79,7 @@ public class SmartHomeUI {
 			input = stdin.readLine().trim();
 			
 			switch(input){
-			case "1": System.out.println("viewLog();");
+			case "1": viewLog();
 				break;
 			case "2": viewMediaFiles();
 				break;
@@ -174,8 +174,10 @@ public class SmartHomeUI {
 	}
 	
 	public void energyWarning(String energyConsumption) {
+		System.out.println();
 		System.out.println("Energy Usage Warning: Current electricity consumption is " + energyConsumption + ".");
 		System.out.println("Please consider the environment before switching on any electrical appliance.");
+		System.out.println();
 	}
 	
 }

@@ -1,0 +1,1 @@
+java -jar Sensor.jar energy Energy.txt elvin://0.0.0.0:2917

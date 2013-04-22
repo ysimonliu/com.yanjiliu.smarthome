@@ -1,0 +1,1 @@
+java -jar SmartHomeUI.jar elvin://0.0.0.0:2917

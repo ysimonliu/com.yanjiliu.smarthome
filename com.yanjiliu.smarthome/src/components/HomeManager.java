@@ -148,7 +148,6 @@ public class HomeManager {
 		this.tempAdjustTime = WAIT_FIVE_SECONDS;
 		this.tempAdjustLog += EOL + "Air-conditioning adjusted." + EOL + "Temperature: at " + currentTemperature + " degrees" + EOL +
 				"At Home: " + getWhosHomeInString() + EOL;
-		System.out.println(tempAdjustLog);
 	}
 
 	// get who's home in a string, and if two users, connect their names with "and"

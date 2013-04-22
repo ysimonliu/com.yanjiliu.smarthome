@@ -1,0 +1,1 @@
+java -jar Sensor.jar temperature Temperature.txt elvin://0.0.0.0:2917

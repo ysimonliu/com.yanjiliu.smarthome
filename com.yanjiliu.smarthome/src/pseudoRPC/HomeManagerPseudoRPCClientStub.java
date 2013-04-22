@@ -100,7 +100,7 @@ public class HomeManagerPseudoRPCClientStub {
 		message.setFrom(Message.HOME_MANAGER_CLIENT_STUB);
 		message.setTo(Message.SMART_UI_NAME);
 		message.setQuery(Message.WARN);
-		message.setValue(currentEnergy);
+		message.setValue(currentEnergy);		
 		message.sendNotification();
 	}
 	

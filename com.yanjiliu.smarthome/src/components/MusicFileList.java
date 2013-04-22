@@ -102,7 +102,7 @@ public class MusicFileList {
 		
 		// if no track has found for match disc, then return "The disc ‘" + disc + "’ was not found in the media collection"
 		if (trackTitleTuple.isEmpty()) {
-			return "The disc ‘" + disc + "’ was not found in the media collection";
+			return "The disc " + disc + " was not found in the media collection";
 		}
 		
 		// return the values of tree maps in the ascending order of keys, which is the track number
