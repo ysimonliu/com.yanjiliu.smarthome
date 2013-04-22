@@ -23,7 +23,7 @@ public class SensorPseudoRPCServerStub {
 			if(query.equals(Message.SHUTDOWN)) {
 				try {
 					sensor.exit();
-					// 
+					// remove subscription and close elvin connection
 					sub.remove();
 					elvin.close();
 				} catch (IOException e) {

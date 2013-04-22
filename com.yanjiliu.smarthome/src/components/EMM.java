@@ -1,70 +1,49 @@
 package components;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
 import org.avis.client.*;
 
+import pseudoRPC.EMMPseudoRPCServerStub;
 import pseudoRPC.Message;
 
 
 public class EMM {
 
 	public static final String TEST_FILE_LOCATION = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\EMMTest.txt";
-	private static FileReader fr;
-	private static BufferedReader br;
-	private static Elvin elvin;
-	private static String dataFileName, elvinURL;
-	private static MusicFileList mfl;
-	private static String lineContent, fileName, title, disc, track, from, query, temp;
-	private static String[] values;
-	private static Message message;
-	private static Subscription sub;
-	
-	private static NotificationListener emmlistener = new NotificationListener(){
-		// upon notification received, execute the following actions
-		public void notificationReceived(NotificationEvent event){
-			
-			// read the instruction
-			query = event.notification.getString(Message.QUERY);
-			from = event.notification.getString(Message.FROM);
-			
-			// and respond with the result
-			if(query.equals(Message.GET_TITLE)) {
-				sendNotification(from, query, 
-						(temp = event.notification.getString(Message.VALUE)), mfl.getTitle(temp));
-			}
-			else if (query.equals(Message.GET_DISC)) {
-				sendNotification(from, query, 
-						(temp = event.notification.getString(Message.VALUE)), mfl.getDisc(temp));
-			}
-			else if (query.equals(Message.GET_TRACKS)) {
-				sendNotification(from, query, 
-						(temp = event.notification.getString(Message.VALUE)), mfl.getTracks(temp));
-			}
-			else if (query.equals(Message.GET_FILES)) {
-				sendNotification(from, query, 
-						event.notification.getString(Message.VALUE), mfl.getFiles());
-			}
-			else if (query.equals(Message.SHUTDOWN)) {
-				EMM.exit();
-			}
+	private FileReader fr;
+	private BufferedReader br;
+	private EMMPseudoRPCServerStub server;
+	private MusicFileList mfl;
+	private String lineContent, dataFileName, fileName, title, disc, track, from, query, temp;
+	private String[] values;
+	// take the program input parameters
+	private static String dataFileNameInput, elvinURL;
+
+	public EMM(String dataFileNameInput, String elvinURL){
+		this.dataFileName = dataFileNameInput;
+		// initialize the mfl, fr and br
+		this.mfl = new MusicFileList();
+		try {
+			this.fr = new FileReader(dataFileName);
+			this.br = new BufferedReader(fr);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		// read file into data structure
+		try {
+			readFile(dataFileName);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
-		}
-
-		// this method sends out response notifications
-		private void sendNotification(String to, String instruction, String value, String result) {
-			message.clear();
-			message.setFrom(Message.EMM_NAME);
-			message.setTo(to);
-			message.setQuery(instruction);
-			message.setValue(value);
-			message.setResponse(result);
-			message.sendNotification();
-		}
-	};
-
+		// start the server stub
+		this.server = new EMMPseudoRPCServerStub(elvinURL, mfl);
+	}
+	
 	/**
 	 * main method, takes two argument, [fileName] and [elvinURL]
 	 * @param args
@@ -78,29 +57,10 @@ public class EMM {
 		} else {
 			System.exit(1);
 		}*/
-		dataFileName = TEST_FILE_LOCATION;
+		dataFileNameInput = TEST_FILE_LOCATION;
 		elvinURL = Message.DEFAULT_ELVIN_URL;
-	
-		// initialize message
-		message = new Message(elvinURL);
 		
-		// read file into data structure
-		try {
-			readFile(dataFileName);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	
-		
-		// subscribe to elvin instructions
-		try{
-			elvin = new Elvin(elvinURL);
-			sub = elvin.subscribe(Message.criteriaBuilder(Message.TO, Message.EMM_NAME)); 
-			sub.addListener(emmlistener);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
+		EMM emm = new EMM(dataFileNameInput, elvinURL);
 	}
 
 	/**
@@ -108,10 +68,7 @@ public class EMM {
 	 * @param fileName
 	 * @throws Exception
 	 */
-	private static void readFile(String dataFileName) throws Exception {
-		mfl = new MusicFileList();
-		fr = new FileReader(dataFileName);
-		br = new BufferedReader(fr);
+	private void readFile(String dataFileName) throws Exception {
 		while((lineContent = br.readLine()) != null) {
 			
 			// skip all possible empty lines
@@ -151,13 +108,7 @@ public class EMM {
 	}
 	
 	// exit the EMM component gracefully
-	private static void exit() {
-		// remove the subscription and close elvin connection
-		try {
-			sub.remove();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		elvin.close();
+	public static void exit() {
+		System.exit(0);
 	}
 }

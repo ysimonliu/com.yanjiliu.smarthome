@@ -80,9 +80,27 @@ public class SensorTesting{
 			e.printStackTrace();
 		}
 		
+		/* System.out.println("Debug: change to NON periodic");
 		switchTempMode(Message.DEFAULT_ELVIN_URL, Message.NON_PERIODIC);
-
-		shutdownComponent(Message.SENSOR_NAME, Message.TYPE_TEMPERATURE);
+		
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Debug: change to PERIODIC");
+		switchTempMode(Message.DEFAULT_ELVIN_URL, Message.PERIODIC);
+		
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
+		System.out.println("Debug: shutting down sensors");
+		shutdownComponent(Message.SENSOR_NAME, Message.TYPE_LOCATION);
 	} 
 }
 

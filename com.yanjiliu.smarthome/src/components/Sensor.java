@@ -16,9 +16,9 @@ import pseudoRPC.SensorPseudoRPCServerStub;
 public final class Sensor {
 	
 	// below is only for test data
-	public final static String TEMP_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\Temperature.txt";
+	//public final static String TEMP_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\Temperature.txt";
 	//public final static String USER1_LOCATION_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\User1Location.txt";
-	//public final static String USER2_LOCATION_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\User2Location.txt";
+	public final static String USER2_LOCATION_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\User2Location.txt";
 	
 	// scheduler for tasks
 	private static ScheduledFuture<?> scheduleFuture;
@@ -27,7 +27,7 @@ public final class Sensor {
 	private final int TICK_SPEED = 1;
 	private final TimeUnit TICK_SPEED_UNIT = TimeUnit.SECONDS;
 	private static final int NUM_THREADS = 1;
-	private static final boolean DONT_INTERRUPT_IF_RUNNING = false;
+	private static final boolean INTERRUPT_IF_RUNNING = true;
 	// Pseudo RPC
 	private SensorPseudoRPCServerStub server;
 	private SensorPseudoRPCClientStub controller;
@@ -80,9 +80,9 @@ public final class Sensor {
 			System.exit(1);
 		}
 		*/
-		sensorTypeInput = Message.TYPE_TEMPERATURE;
+		sensorTypeInput = Message.TYPE_LOCATION;
 		elvinURL = Message.DEFAULT_ELVIN_URL;
-		fileNameInput = TEMP_TEST_NAME;
+		fileNameInput = USER2_LOCATION_TEST_NAME;
 		
 		
 		// instantiate sensor
@@ -192,9 +192,9 @@ public final class Sensor {
 	 */
 	public void exit(){
 		// cancel future scheduled tasks and shut down the scheduler. if anything is running, don't interrupt it
-		scheduleFuture.cancel(DONT_INTERRUPT_IF_RUNNING);
+		scheduleFuture.cancel(INTERRUPT_IF_RUNNING);
 		scheduler.shutdown();
-		
+
 		// if it's location sensor, we degister user name with home manager server stub
 		if (this.sensorType.equals(Message.TYPE_LOCATION)) {
 			deresgiterUser();

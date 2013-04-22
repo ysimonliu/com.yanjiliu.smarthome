@@ -49,8 +49,10 @@ public class SensorPseudoRPCClientStub extends Thread {
 		message.sendNotification();
 	}
 
-	
+	/**
+	 * exit the controller by destroying the message
+	 */
 	public void exit() {
-		
+		message.destroy();
 	}
 }

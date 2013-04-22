@@ -147,7 +147,15 @@ public class HomeManager {
 		temperature = newTemperature;
 	}
 	
+	/**
+	 * Return the temperature adjust log
+	 * @return
+	 */
 	public static String getTempAdjustLog() {
+		// if the log is empty then return "Log of temperature adjustment is empty"
+		if (tempAdjustLog.isEmpty()) {
+			return "Log of temperature adjustment is empty";
+		}
 		return tempAdjustLog;
 	}
 	
@@ -164,10 +172,19 @@ public class HomeManager {
 		System.exit(0);
 	}
 
+	/**
+	 * Get a list of media files from EMM
+	 * @return
+	 */
 	public static String getMediaFiles() {
 		return controller.requestFromEMM(Message.GET_FILES, "");
 	}
 
+	/**
+	 * Get track titles
+	 * @param value
+	 * @return
+	 */
 	public static String getTracks(String value) {
 		return controller.requestFromEMM(Message.GET_TRACKS, value);
 	}
