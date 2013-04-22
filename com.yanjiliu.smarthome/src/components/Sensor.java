@@ -18,8 +18,9 @@ public class Sensor {
 	// below is only for test data
 	//public final static String TEMP_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\Temperature.txt";
 	//public final static String USER1_LOCATION_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\User1Location.txt";
-	public final static String USER2_LOCATION_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\User2Location.txt";
-	
+	//public final static String USER2_LOCATION_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\User2Location.txt";
+	public final static String ENERGY_TEST_FILE = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\Energy.txt";
+
 	// scheduler for tasks
 	private static ScheduledFuture<?> scheduleFuture;
 	private static ScheduledExecutorService scheduler;
@@ -80,9 +81,9 @@ public class Sensor {
 			System.exit(1);
 		}
 		*/
-		sensorTypeInput = Message.TYPE_LOCATION;
+		sensorTypeInput = Message.TYPE_ENERGY;
 		elvinURL = Message.DEFAULT_ELVIN_URL;
-		fileNameInput = USER2_LOCATION_TEST_NAME;
+		fileNameInput = ENERGY_TEST_FILE;
 		
 		
 		// instantiate sensor

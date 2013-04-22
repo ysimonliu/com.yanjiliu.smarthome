@@ -95,7 +95,7 @@ public class HomeManager {
 		public void run() {
 			// this monitors the energy usage
 			monitorEnergy();
-			// depending on whether or not aircon is adjusting temp
+			// depending on whether or not aircon on, we evaluate location and temperature
 			if (tempAdjustTime <= 0) {
 				// this evaluates location status and switch modes of temp sensor
 				evaluateLocation();
