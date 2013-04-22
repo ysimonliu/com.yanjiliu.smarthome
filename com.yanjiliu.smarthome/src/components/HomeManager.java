@@ -36,6 +36,7 @@ public class HomeManager {
 	private int currentTemperature;
 	private String tempAdjustLog;
 	private int tempAdjustTime;
+	private final int WAIT_FIVE_SECONDS = 4;
 	// energy tracking
 	private int currentEnergy, previousEnergy;
 	// input parameter
@@ -115,7 +116,6 @@ public class HomeManager {
 	
 	// monitors energy, if over 4000, warn the UI
 	public void monitorEnergy() {
-		System.out.println("DEBUG: I'm in monitor energy");
 		if (currentEnergy > 4000 && (currentEnergy != previousEnergy)) {
 			controller.warnUI(String.valueOf(currentEnergy));
 		}
@@ -127,7 +127,6 @@ public class HomeManager {
 	 * @param usersLocation
 	 */
 	public void controlTemperature(int currentTemperature) {
-		System.out.println("DEBUG: I'm in control temperature");
 		if (!whosHome.isEmpty()) {
 			if (currentTemperature != Message.HOME_TEMP) {
 				adjustTemp(currentTemperature);
@@ -145,9 +144,9 @@ public class HomeManager {
 	 * @param whosHome
 	 */
 	private void adjustTemp(int currentTemperature) {
-		System.out.println("DEBUG: I'm in adjust temperature");
-		this.tempAdjustTime = 5;
-		this.tempAdjustLog += "Air-conditioning adjusted." + EOL + "Temperature: at " + currentTemperature + " degrees" + EOL +
+		// we wait for 4 seconds. But because in the if statement it compares with 0, here we set it to 4
+		this.tempAdjustTime = WAIT_FIVE_SECONDS;
+		this.tempAdjustLog += EOL + "Air-conditioning adjusted." + EOL + "Temperature: at " + currentTemperature + " degrees" + EOL +
 				"At Home: " + getWhosHomeInString() + EOL;
 		System.out.println(tempAdjustLog);
 	}
@@ -165,14 +164,11 @@ public class HomeManager {
 	 * This method evaluates the location info and set the temperature sensor to different modes
 	 */
 	public void evaluateLocation() {
-		// only send notification when who's home is now different than last time
-		if (whosHome.equals(previousWhosHome)) {
-			switch(whosHome.size()) {
-			case 0: controller.switchTempMode(Message.NON_PERIODIC);
-				break;
-			default: controller.switchTempMode(Message.PERIODIC);
-				break;
-			}
+		switch(whosHome.size()) {
+		case 0: controller.switchTempMode(Message.NON_PERIODIC);
+			break;
+		default: controller.switchTempMode(Message.PERIODIC);
+			break;
 		}
 	}
 	

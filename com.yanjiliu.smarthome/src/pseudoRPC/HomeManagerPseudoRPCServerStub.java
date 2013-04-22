@@ -36,10 +36,10 @@ public class HomeManagerPseudoRPCServerStub {
 			value = event.notification.getString(Message.VALUE);
 			
 			//FIXME:
-			System.out.println("FROM: " + from);
-			System.out.println("QUERY: " + query);
 			System.out.println("TYPE: " + type);
 			System.out.println("VALUE: " + value);
+			System.out.println("USER: " + event.notification.getString(Message.USER));
+			System.out.println();
 			
 			switch(from){
 			case Message.SENSOR_NAME: updateSensorData(type, value, event.notification);
