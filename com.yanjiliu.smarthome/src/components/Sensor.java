@@ -14,12 +14,6 @@ import pseudoRPC.SensorPseudoRPCClientStub;
 import pseudoRPC.SensorPseudoRPCServerStub;
 
 public class Sensor {
-	
-	// below is only for test data
-	//public final static String TEMP_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\Temperature.txt";
-	//public final static String USER1_LOCATION_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\User1Location.txt";
-	//public final static String USER2_LOCATION_TEST_NAME = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\User2Location.txt";
-	//public final static String ENERGY_TEST_FILE = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\Energy.txt";
 
 	// scheduler for tasks
 	private static ScheduledFuture<?> scheduleFuture;
@@ -71,18 +65,15 @@ public class Sensor {
 	}
 
 	public static void main(String[] args) throws InterruptedException {
+		// checks the parameters
 		if (args.length == 3) {
 			sensorTypeInput = args[0];
 			fileNameInput = args[1];
 			elvinURL = args[2];
 		} else {
-			System.out.println("Error: number of input parameters need to be 3");
+			System.out.println("Error: there has to be exactly 3 parameters");
 			System.exit(1);
 		}
-		
-		/*sensorTypeInput = Message.TYPE_ENERGY;
-		elvinURL = Message.DEFAULT_ELVIN_URL;
-		fileNameInput = ENERGY_TEST_FILE;*/
 		
 		// instantiate sensor
 		Sensor sensor = new Sensor(sensorTypeInput, fileNameInput);

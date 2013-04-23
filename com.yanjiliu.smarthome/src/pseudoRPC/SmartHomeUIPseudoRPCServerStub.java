@@ -11,9 +11,6 @@ import components.SmartHomeUI;
 
 public class SmartHomeUIPseudoRPCServerStub {
 	
-	private final String ENERGY_SUB_CRITERIA = Message.criteriaBuilder(Message.FROM, Message.HOME_MANAGER_CLIENT_STUB) + " && " +
-			Message.criteriaBuilder(Message.TO, Message.SMART_UI_NAME) + " && " +
-			Message.criteriaBuilder(Message.QUERY, Message.WARN);
 	private Elvin elvin;
 	private Subscription subscription;
 	private SmartHomeUI smartHomeUI;
@@ -32,10 +29,14 @@ public class SmartHomeUIPseudoRPCServerStub {
 	 */
 	public SmartHomeUIPseudoRPCServerStub(String elvinURL, SmartHomeUI smartHomeUI) {
 		this.smartHomeUI = smartHomeUI;
+		// connects to the elvin server and add the listener
+		String criteria = Message.criteriaBuilder(Message.FROM, Message.HOME_MANAGER_CLIENT_STUB) + " && " +
+				Message.criteriaBuilder(Message.TO, Message.SMART_UI_NAME) + " && " +
+				Message.criteriaBuilder(Message.QUERY, Message.WARN);
 		//add listener to energy over consumption
 		try {
 			this.elvin = new Elvin(elvinURL);
-			this.subscription = elvin.subscribe(ENERGY_SUB_CRITERIA);
+			this.subscription = elvin.subscribe(criteria);
 			subscription.addListener(UIListener);
 		} catch (Exception e) {
 			e.printStackTrace();

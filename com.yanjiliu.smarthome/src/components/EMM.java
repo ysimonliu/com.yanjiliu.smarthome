@@ -7,10 +7,11 @@ import java.io.FileReader;
 import pseudoRPC.EMMPseudoRPCServerStub;
 import pseudoRPC.Message;
 
-
+/**
+ * This class defines the Electronic Media Manager
+ */
 public class EMM {
 
-	public static final String TEST_FILE_LOCATION = "H:\\git\\com.yanjiliu.smarthome\\com.yanjiliu.smarthome\\src\\testFiles\\EMMTest.txt";
 	private FileReader fr;
 	private BufferedReader br;
 	private EMMPseudoRPCServerStub server;
@@ -20,6 +21,11 @@ public class EMM {
 	// take the program input parameters
 	private static String dataFileNameInput, elvinURL;
 
+	/**
+	 * Constructor, takes the data file name and the elvin URL
+	 * @param dataFileNameInput
+	 * @param elvinURL
+	 */
 	public EMM(String dataFileNameInput, String elvinURL){
 		this.dataFileName = dataFileNameInput;
 		// initialize the mfl, fr and br
@@ -51,10 +57,11 @@ public class EMM {
 			dataFileNameInput = args[0];
 			elvinURL = args[1];
 		} else {
-			System.out.println("Error: number of input parameters need to be 2");
+			System.out.println("Error: there has to be exactly 2 parameters");
 			System.exit(1);
 		}
 		
+		// instantiate EMM, everything else is taken care of in the constructor
 		EMM emm = new EMM(dataFileNameInput, elvinURL);
 	}
 

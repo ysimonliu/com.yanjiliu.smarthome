@@ -7,8 +7,6 @@ import org.avis.client.*;
 /**
  * This class is mainly responsible for sending out notifications that does not require responses
  * Additionally, it defines the standard template for a message, but some fields are optional in a message
- * @author Yanji Liu
- *
  */
 public class Message {
 
@@ -110,8 +108,6 @@ public class Message {
 			e.printStackTrace();
 		}
 	}
-	
-	// TODO: other constructors may be accepted too, expand as this being used
 	
 	public String getType() {
 		return this.notification.getString(TYPE);

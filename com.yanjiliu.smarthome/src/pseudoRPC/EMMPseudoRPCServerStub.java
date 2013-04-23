@@ -19,7 +19,13 @@ public class EMMPseudoRPCServerStub {
 	private Elvin elvin;
 	private Subscription sub;
 	
+	/**
+	 * Constructor
+	 * @param elvinURL
+	 * @param emm
+	 */
 	public EMMPseudoRPCServerStub(String elvinURL, EMM emm) {
+		// initialize emm, mfl, and message
 		this.emm = emm;
 		this.mfl = emm.getMFL();
 		this.message = new Message(elvinURL);
@@ -33,6 +39,7 @@ public class EMMPseudoRPCServerStub {
 		}
 	}
 	
+	// define the listener for the EMM PseudoRPCServerStub
 	private NotificationListener emmlistener = new NotificationListener(){
 		// upon notification received, execute the following actions
 		public void notificationReceived(NotificationEvent event){
@@ -58,13 +65,20 @@ public class EMMPseudoRPCServerStub {
 				sendNotification(from, query, 
 						event.notification.getString(Message.VALUE), mfl.getFiles());
 			}
+			// if told to shutdown, then exit
 			else if (query.equals(Message.SHUTDOWN)) {
 				exit();
 			}
 		
 		}
 		
-		// this method sends out response notifications
+		/**
+		 * this method sends out response notifications with the corresponding inputs
+		 * @param to
+		 * @param instruction
+		 * @param value
+		 * @param result
+		 */
 		private void sendNotification(String to, String instruction, String value, String result) {
 			message.clear();
 			message.setFrom(Message.EMM_NAME);

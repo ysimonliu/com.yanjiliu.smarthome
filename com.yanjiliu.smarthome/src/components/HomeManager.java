@@ -62,15 +62,17 @@ public class HomeManager {
 		this.tempAdjustLog = "";
 	}
 
+	/**
+	 * Main method, takes one parameter [elvinURL]
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		// reads the parameter into variable
 		if (args.length == 1) {
 			elvinURLInput = args[0];
 		}
-		else if (args.length == 0) {
-			elvinURLInput = Message.DEFAULT_ELVIN_URL;
-		}
 		else {
+			System.out.println("Error: there has to be exactly 1 parameter");
 			System.exit(1);
 		}
 		
@@ -85,6 +87,7 @@ public class HomeManager {
 	 * This method will activate the sensor and send periodic notifications onto elvin
 	 */
 	private void activateHomeManager(){
+		// schedule the task to execute periodically
 		Thread homeManagerTask = new homeManagerTask();
 		scheduleFuture = scheduler.scheduleWithFixedDelay(homeManagerTask, INITIAL_DELAY, TICK_SPEED, TICK_SPEED_UNIT);
 	}
@@ -127,11 +130,12 @@ public class HomeManager {
 	 * @param usersLocation
 	 */
 	public void controlTemperature(int currentTemperature) {
+		// if anybody's home, match it against the HOME_TEMP
 		if (!whosHome.isEmpty()) {
 			if (currentTemperature != Message.HOME_TEMP) {
 				adjustTemp(currentTemperature);
 			}
-		} else {
+		} else { // or else, compare the current temperature to a range
 			if (currentTemperature < Message.AWAY_MIN_TEMP || currentTemperature > Message.AWAY_MAX_TEMP) {
 				adjustTemp(currentTemperature);
 			}
@@ -144,8 +148,9 @@ public class HomeManager {
 	 * @param whosHome
 	 */
 	private void adjustTemp(int currentTemperature) {
-		// we wait for 4 seconds. But because in the if statement it compares with 0, here we set it to 4
+		// we wait for 5 seconds. But because in the if statement it compares with 0, here we set it to 4
 		this.tempAdjustTime = WAIT_FIVE_SECONDS;
+		// log it
 		this.tempAdjustLog += EOL + "Air-conditioning adjusted." + EOL + "Temperature: at " + currentTemperature + " degrees" + EOL +
 				"At Home: " + getWhosHomeInString() + EOL;
 	}

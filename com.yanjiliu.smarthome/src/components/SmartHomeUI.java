@@ -12,9 +12,12 @@ import pseudoRPC.SmartHomeUIPseudoRPCServerStub;
 
 public class SmartHomeUI {
 	
+	// input parameter
 	private static String elvinURLInput; 
+	// for standard input use
 	private String input;
 	private BufferedReader stdin;
+	// smart home Pseudo RPC
 	private SmartHomeUIPseudoRPCServerStub server;
 	private SmartHomeUIPseudoRPCClientStub controller;
 	
@@ -45,6 +48,7 @@ public class SmartHomeUI {
 			System.exit(1);
 		}
 	
+		// instantiate the smart home UI, and everything else is taken care of in the constructor
 		SmartHomeUI smartHomeUI = new SmartHomeUI(elvinURLInput);
 	}
 	
@@ -78,6 +82,7 @@ public class SmartHomeUI {
 			
 			input = stdin.readLine().trim();
 			
+			// based on input, trigger different functions
 			switch(input){
 			case "1": viewLog();
 				break;
@@ -99,7 +104,7 @@ public class SmartHomeUI {
 			e.printStackTrace();
 		}
 		
-		// always go back to main menu
+		// always go back to main menu, the ENTER to return is implemented in each of the functions
 		mainMenu();
 	}
 
@@ -173,6 +178,10 @@ public class SmartHomeUI {
 		System.exit(0);
 	}
 	
+	/**
+	 * This method will display energy overusage warning onto screen, but does not interfere with the current process
+	 * @param energyConsumption
+	 */
 	public void energyWarning(String energyConsumption) {
 		System.out.println();
 		System.out.println("Energy Usage Warning: Current electricity consumption is " + energyConsumption + ".");

@@ -15,6 +15,9 @@ public class SensorPseudoRPCServerStub {
 	private Elvin elvin;
 	private Subscription sub;
 
+	/**
+	 * defines the sensor listener, will execute corresponding tasks upon receiving correct queries
+	 */
 	private NotificationListener SensorListener = new NotificationListener(){
 		// upon notification received, execute the following actions
 		public void notificationReceived(NotificationEvent event){

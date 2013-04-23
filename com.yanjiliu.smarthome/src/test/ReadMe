@@ -1,0 +1,16 @@
+Two ways of running my project:
+
+1. Simply launch EMM.java, Sensor.java, HomeManager.java, and SmartHomeUI.java with parameters needed. The only issue with this is that you can't guarantee to run all these files at almost the same time and thus it's hard know what results you are expecting.
+
+2. If you look into the test package, I have exported my project into four runnable JAR files.
+
+They are:
+EMM.jar
+Sensor.jar
+HomeManager.jar
+SmartHomeUI.jar
+
+I have written simple batch scripts to run these. All you need to make sure if that a) The JAR files names are the same b) the data file names are the same c) if anything changes, please change the corresponding batch file
+Now if you have all the files ready, simply launch runTest.bat, it will open 7 separate windows command prompt windows. And please only interact with the SmartHomeUI window. Upon exit, all programs will exit gracefully, but windows will remain open, which you have to manually close.
+
+If you have any questions regarding running this, please feel free to email me at yanji.liu@uqconnect.edu.au

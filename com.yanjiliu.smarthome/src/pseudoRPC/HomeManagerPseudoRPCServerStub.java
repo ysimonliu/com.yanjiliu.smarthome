@@ -43,6 +43,12 @@ public class HomeManagerPseudoRPCServerStub {
 			}
 		}
 		
+		/**
+		 * Processes Query from the UI, the Home Manager only expects queries from the UI, but data from elsewhere
+		 * @param to
+		 * @param query
+		 * @param value
+		 */
 		private void processUIQuery(String to, String query, String value) {
 			// initialize response String
 			response = "";
@@ -86,7 +92,7 @@ public class HomeManagerPseudoRPCServerStub {
 	};
 	
 	/**
-	 * exit the home manager RPC server stub
+	 * exit the home manager RPC server stub gracefully
 	 */
 	public void exit() {
 		// remove subscription and close elvin connection

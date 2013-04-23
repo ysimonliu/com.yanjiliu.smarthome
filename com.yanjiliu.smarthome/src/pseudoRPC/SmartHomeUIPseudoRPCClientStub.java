@@ -12,6 +12,10 @@ public class SmartHomeUIPseudoRPCClientStub {
 	private Subscription response;
 	private static Object lock = new Object();
 	
+	/**
+	 * Constructor
+	 * @param elvinURL
+	 */
 	public SmartHomeUIPseudoRPCClientStub(String elvinURL) {
 		message = new Message(elvinURL);
 		
@@ -23,9 +27,15 @@ public class SmartHomeUIPseudoRPCClientStub {
 		}
 	}
 	
+	/**
+	 * Request from the home manager
+	 * @param query
+	 * @param value
+	 * @return
+	 */
 	public String requestFromHomeManager(String query, String value) {
 		
-		// set up listener for the response. during this period, block calling
+		// set up listener for the response
 		criteria = Message.criteriaBuilder(Message.FROM, Message.HOME_MANAGER_SERVER_STUB) + " && " +
 				Message.criteriaBuilder(Message.TO, Message.SMART_UI_NAME) + " && " +
 				Message.criteriaBuilder(Message.QUERY, query) + " && " + Message.criteriaBuilder(Message.VALUE, value);
